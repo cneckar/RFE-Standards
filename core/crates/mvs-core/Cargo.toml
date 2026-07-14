@@ -10,3 +10,7 @@ repository.workspace = true
 workspace = true
 
 [dependencies]
+mvs-schema = { path = "../mvs-schema" }
+
+[dev-dependencies]
+serde_json = "1"

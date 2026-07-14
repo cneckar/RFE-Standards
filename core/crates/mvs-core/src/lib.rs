@@ -1,9 +1,13 @@
 //! Instrumented parser core for the MVS/RFE framework.
 //!
-//! This crate will house the throughput-critical parser that traces execution
-//! paths against an AST and tallies node-hit rates (Task 2.1). For now it
-//! defines the foundational node-identity type that the Python↔Rust artifact
-//! contract (Task 0.2) is built around.
+//! The [`telemetry`] module houses the throughput-critical parser that traces
+//! execution paths against a Phase-1 AST and tallies node-hit rates (Task 2.1).
+//! This root module defines the foundational node-identity type that the
+//! Python↔Rust artifact contract (Task 0.2) is built around.
+
+pub mod telemetry;
+
+pub use telemetry::{CompileError, Grammar, HitAggregator, ParseResult};
 
 /// Stable identifier for a single grammar/schema node in an AST.
 ///
