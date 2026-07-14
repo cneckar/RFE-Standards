@@ -1,0 +1,12 @@
+schema_version: 1
+overrides:
+  # pct-encoded is rare in the corpus (300 / 1,000,000 = 0.03%, below the 0.1%
+  # threshold) but must never be pruned: correct percent-decoding is required to
+  # reject/normalize encoded path-traversal and injection payloads.
+  "rfc3986-uri:pct-encoded#6a7b8c9d":
+    protected: true
+    justification: >-
+      Security-critical: percent-encoding must be parsed to correctly normalize
+      and reject encoded traversal (%2e%2e) and injection payloads, even though
+      it appears in well under 0.1% of sampled URIs.
+    owner: security-wg

@@ -1,0 +1,17 @@
+[package]
+name = "mvs-schema"
+description = "Serde types for the MVS/RFE artifact spine (AST, hits, overrides, pruned) — the Python/Rust contract from Task 0.2."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+
+[dev-dependencies]
+serde_json = "1"
+serde_yaml = "0.9"

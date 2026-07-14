@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/cneckar/RFE-Standards/schemas/ast.schema.json",
+  "title": "MVS AST",
+  "description": "A specification grammar/schema decomposed into uniquely-identified, measurable nodes. Produced by Phase 1; consumed by the telemetry engine, pruner, and RFE re-run.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "grammar", "root", "nodes"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "grammar": {
+      "description": "Identifier for the decomposed standard, e.g. 'rfc3986-uri' or 'rfc5280-x509'.",
+      "$ref": "#/$defs/grammar_id"
+    },
+    "source": {
+      "description": "Provenance of the grammar text the nodes were extracted from.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "rfc": { "type": "string" },
+        "uri": { "type": "string" },
+        "section": { "type": "string" }
+      }
+    },
+    "root": {
+      "description": "Node id of the grammar's start symbol. Must be a key in 'nodes'.",
+      "$ref": "#/$defs/node_id"
+    },
+    "nodes": {
+      "description": "Every grammar rule / ASN.1 tag / string type / optional sequence, keyed by its unique node id.",
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "$ref": "#/$defs/node_id" },
+      "additionalProperties": { "$ref": "#/$defs/node" }
+    }
+  },
+  "$defs": {
+    "grammar_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "node_id": {
+      "description": "Stable identity for a node: '<grammar>:<rule-path>#<hash8>', where hash8 is a hex digest of the node's structural path (disambiguating repeated rules).",
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*:[A-Za-z0-9._-]+#[0-9a-f]{8}$"
+    },
+    "node": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "name"],
+      "properties": {
+        "kind": {
+          "description": "Structural role of the node in the grammar/schema.",
+          "enum": [
+            "rule",
+            "reference",
+            "terminal",
+            "sequence",
+            "alternation",
+            "optional",
+            "repetition",
+            "group",
+            "tag",
+            "string-type",
+            "named-type"
+          ]
+        },
+        "name": {
+          "description": "Human-readable rule/field name, e.g. 'host', 'userinfo', 'pct-encoded'.",
+          "type": "string",
+          "minLength": 1
+        },
+        "children": {
+          "description": "Ordered node ids of this node's direct constituents. Each must be a key in 'nodes'.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/node_id" }
+        },
+        "span": { "$ref": "#/$defs/span" }
+      }
+    },
+    "span": {
+      "description": "Byte range into the source grammar text the node was extracted from.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start", "end"],
+      "properties": {
+        "start": { "type": "integer", "minimum": 0 },
+        "end": { "type": "integer", "minimum": 0 },
+        "source": { "type": "string" }
+      }
+    }
+  }
+}

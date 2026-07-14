@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "grammar": "rfc3986-uri",
+  "source": {
+    "rfc": "RFC 3986",
+    "uri": "https://www.rfc-editor.org/rfc/rfc3986",
+    "section": "Appendix A"
+  },
+  "root": "rfc3986-uri:URI#a1b2c3d4",
+  "nodes": {
+    "rfc3986-uri:URI#a1b2c3d4": {
+      "kind": "rule",
+      "name": "URI",
+      "children": [
+        "rfc3986-uri:scheme#5e6f7a8b",
+        "rfc3986-uri:authority#0c1d2e3f",
+        "rfc3986-uri:query#0e1f2a3b",
+        "rfc3986-uri:fragment#4c5d6e7f"
+      ],
+      "span": { "start": 0, "end": 58, "source": "RFC 3986 Appendix A" }
+    },
+    "rfc3986-uri:scheme#5e6f7a8b": {
+      "kind": "rule",
+      "name": "scheme",
+      "children": [],
+      "span": { "start": 120, "end": 165 }
+    },
+    "rfc3986-uri:authority#0c1d2e3f": {
+      "kind": "rule",
+      "name": "authority",
+      "children": [
+        "rfc3986-uri:userinfo#4a5b6c7d",
+        "rfc3986-uri:host#8e9f0a1b",
+        "rfc3986-uri:port#2c3d4e5f"
+      ],
+      "span": { "start": 200, "end": 246 }
+    },
+    "rfc3986-uri:userinfo#4a5b6c7d": {
+      "kind": "rule",
+      "name": "userinfo",
+      "children": [],
+      "span": { "start": 260, "end": 320 }
+    },
+    "rfc3986-uri:host#8e9f0a1b": {
+      "kind": "rule",
+      "name": "host",
+      "children": ["rfc3986-uri:pct-encoded#6a7b8c9d"],
+      "span": { "start": 330, "end": 372 }
+    },
+    "rfc3986-uri:port#2c3d4e5f": {
+      "kind": "rule",
+      "name": "port",
+      "children": [],
+      "span": { "start": 380, "end": 400 }
+    },
+    "rfc3986-uri:pct-encoded#6a7b8c9d": {
+      "kind": "rule",
+      "name": "pct-encoded",
+      "children": [],
+      "span": { "start": 900, "end": 936 }
+    },
+    "rfc3986-uri:query#0e1f2a3b": {
+      "kind": "rule",
+      "name": "query",
+      "children": [],
+      "span": { "start": 1000, "end": 1040 }
+    },
+    "rfc3986-uri:fragment#4c5d6e7f": {
+      "kind": "rule",
+      "name": "fragment",
+      "children": [],
+      "span": { "start": 1050, "end": 1090 }
+    }
+  }
+}

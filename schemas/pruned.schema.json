@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/cneckar/RFE-Standards/schemas/pruned.schema.json",
+  "title": "MVS Pruned Node Set",
+  "description": "Output of the pruner (Phase 3): the node ids amputated from a grammar and a reference to the surviving minified standard. Input to the reference-parser code generator (Phase 4).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "grammar", "threshold", "pruned", "surviving_grammar"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "grammar": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "threshold": {
+      "description": "The MIN_USAGE_PERCENTAGE applied (usage fraction, 0..1). Nodes below this and not protected were pruned.",
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "pruned": {
+      "description": "Node ids removed from the standard.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/node_id" }
+    },
+    "surviving_grammar": {
+      "description": "Path/URI of the minified standard containing only surviving nodes (e.g. the generated mvs.abnf / mvs.asn1).",
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "$defs": {
+    "node_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*:[A-Za-z0-9._-]+#[0-9a-f]{8}$"
+    }
+  }
+}
