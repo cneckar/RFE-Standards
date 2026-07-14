@@ -1,0 +1,8 @@
+# Invalid on purpose: an override with no `justification`. The schema requires a
+# non-empty justification for every protected node, so this must be rejected.
+# Used by the negative validation tests.
+schema_version: 1
+overrides:
+  "rfc3986-uri:userinfo#4a5b6c7d":
+    protected: true
+    owner: someone

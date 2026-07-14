@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/cneckar/RFE-Standards/schemas/hits.schema.json",
+  "title": "MVS Telemetry Hits",
+  "description": "Aggregated node-hit counts for a grammar, tallied by the instrumented parser over a corpus. The usage fraction of a node is hits[node_id] / total_samples.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "grammar", "total_samples", "hits"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "grammar": {
+      "description": "Must match the AST 'grammar' these hits were measured against.",
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "total_samples": {
+      "description": "Number of inputs fed through the parser — the denominator for every usage fraction.",
+      "type": "integer",
+      "minimum": 0
+    },
+    "hits": {
+      "description": "Traversal count per node id. A node absent from this map has an implied count of 0.",
+      "type": "object",
+      "propertyNames": { "$ref": "#/$defs/node_id" },
+      "additionalProperties": { "type": "integer", "minimum": 0 }
+    }
+  },
+  "$defs": {
+    "node_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*:[A-Za-z0-9._-]+#[0-9a-f]{8}$"
+    }
+  }
+}

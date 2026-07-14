@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/cneckar/RFE-Standards/schemas/overrides.schema.json",
+  "title": "MVS Criticality Override Registry",
+  "description": "Manual protection layer (overrides.yaml). Nodes marked protected are never pruned regardless of usage. Every override MUST carry a written justification and an owner.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "overrides"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "overrides": {
+      "description": "Per-node override records, keyed by node id.",
+      "type": "object",
+      "propertyNames": { "$ref": "#/$defs/node_id" },
+      "additionalProperties": { "$ref": "#/$defs/override" }
+    }
+  },
+  "$defs": {
+    "node_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*:[A-Za-z0-9._-]+#[0-9a-f]{8}$"
+    },
+    "override": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["protected", "justification", "owner"],
+      "properties": {
+        "protected": {
+          "description": "When true the node survives pruning even below the usage threshold.",
+          "type": "boolean"
+        },
+        "justification": {
+          "description": "Why this node is protected. Required and non-empty — an override without a stated reason is rejected.",
+          "type": "string",
+          "minLength": 1
+        },
+        "owner": {
+          "description": "Person or team accountable for the override (for periodic review).",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

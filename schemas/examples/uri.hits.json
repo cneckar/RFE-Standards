@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "grammar": "rfc3986-uri",
+  "total_samples": 1000000,
+  "hits": {
+    "rfc3986-uri:URI#a1b2c3d4": 1000000,
+    "rfc3986-uri:scheme#5e6f7a8b": 1000000,
+    "rfc3986-uri:authority#0c1d2e3f": 990000,
+    "rfc3986-uri:host#8e9f0a1b": 990000,
+    "rfc3986-uri:query#0e1f2a3b": 300000,
+    "rfc3986-uri:fragment#4c5d6e7f": 50000,
+    "rfc3986-uri:port#2c3d4e5f": 8000,
+    "rfc3986-uri:pct-encoded#6a7b8c9d": 300,
+    "rfc3986-uri:userinfo#4a5b6c7d": 40
+  }
+}

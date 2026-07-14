@@ -7,7 +7,10 @@ license = { text = "MIT" }
 readme = "README.md"
 
 # Runtime deps are added per-ticket (abnf, asn1crypto, fastapi, ...).
-dependencies = []
+dependencies = [
+    "jsonschema>=4.20",
+    "PyYAML>=6",
+]
 
 [project.optional-dependencies]
 dev = [

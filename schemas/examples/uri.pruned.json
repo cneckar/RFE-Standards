@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "grammar": "rfc3986-uri",
+  "threshold": 0.001,
+  "pruned": ["rfc3986-uri:userinfo#4a5b6c7d"],
+  "surviving_grammar": "mvs/rfc3986-uri.mvs.abnf"
+}
