@@ -27,6 +27,10 @@ build-backend = "setuptools.build_meta"
 # at them explicitly so flat-layout auto-discovery doesn't trip over core/ etc.
 where = ["pipeline", "rfe-service"]
 
+[tool.setuptools.package-data]
+# Ship vendored grammar files with the wheel.
+mvs_pipeline = ["grammars/*.abnf"]
+
 [tool.ruff]
 target-version = "py311"
 line-length = 100
