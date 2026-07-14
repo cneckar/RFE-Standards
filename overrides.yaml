@@ -1,0 +1,25 @@
+# Criticality Override Registry (Task 2.4)
+#
+# Nodes listed here with `protected: true` are NEVER pruned by the MVS pruner
+# (Phase 3), regardless of how rarely they appear in the telemetry corpus. This
+# is the deliberate escape hatch from pure usage-driven pruning, for features
+# that are load-bearing for security, safety, or accessibility even when rare.
+#
+# Every entry MUST carry a non-empty `justification` and an `owner` (enforced by
+# schemas/overrides.schema.json). See docs/overrides.md for the process and the
+# bar an override has to clear. Node ids are the stable ids from the Phase-1 AST
+# artifacts under artifacts/.
+
+schema_version: 1
+overrides:
+  # Percent-encoding is rare across sampled URIs but must never be dropped:
+  # correct decoding is what lets a parser normalize and reject encoded
+  # path-traversal (%2e%2e) and injection payloads. Removing it would turn a
+  # security control into a silent bypass.
+  "rfc3986-uri:pct-encoded#5b00e532":
+    protected: true
+    justification: >-
+      Security-critical: percent-encoding must be parsed to correctly normalize
+      and reject encoded traversal (%2e%2e) and injection payloads, even though
+      it appears in well under 0.1% of sampled URIs.
+    owner: security-wg
