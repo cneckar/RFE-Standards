@@ -25,11 +25,25 @@ explicit Criticality Override Registry — not design-by-committee.
 - **Phase 4 — Reference Implementations:** auto-generate fast, strict parsers from the minified standard.
 - **Phase 5 — Request for Evidence (RFE):** consumers submit corpora to prove a pruned feature is necessary in their domain.
 
+## Stack
+
+Hybrid **Python + Rust** (see [ADR 0001](docs/adr/0001-technology-stack.md)):
+
+- **Rust** — the throughput-critical instrumented parser core (Phase 2) and the
+  **native, cross-platform** reference parsers (Phase 4, via `nom`). These are the
+  shipped deliverables: standalone binaries for Linux/macOS/Windows, no runtime.
+- **Python** — dev-time/server-side tooling only: AST extraction, corpus
+  ingestion, the pruner, and the RFE service. Ships nothing to consumers.
+
+Phases communicate through a **JSON artifact spine** (AST, `hits.json`,
+`overrides.yaml`, `pruned.json`), which is the language boundary — no FFI.
+
 ## Documents
 
 - [`docs/PLAN.md`](docs/PLAN.md) — the architectural source of truth. Phases are Epics; Tasks are tickets.
+- [`docs/TICKETS.md`](docs/TICKETS.md) — the filable ticket breakdown with dependencies.
+- [`docs/adr/0001-technology-stack.md`](docs/adr/0001-technology-stack.md) — stack decision.
 
 ## Status
 
-Planning. See `docs/PLAN.md` for the full phase/task breakdown. Implementation
-tickets are being decomposed from the plan.
+Planning. Ticket breakdown complete in `docs/TICKETS.md`; issues being filed.
