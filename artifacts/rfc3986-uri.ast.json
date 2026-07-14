@@ -1,0 +1,2507 @@
+{
+  "grammar": "rfc3986-uri",
+  "nodes": {
+    "rfc3986-uri:ALPHA#a4f7d319": {
+      "kind": "terminal",
+      "name": "%x61-7A"
+    },
+    "rfc3986-uri:ALPHA#af667a1d": {
+      "kind": "terminal",
+      "name": "%x41-5A"
+    },
+    "rfc3986-uri:ALPHA#beb3410a": {
+      "children": [
+        "rfc3986-uri:ALPHA#af667a1d",
+        "rfc3986-uri:ALPHA#a4f7d319"
+      ],
+      "kind": "alternation",
+      "name": "alternation"
+    },
+    "rfc3986-uri:ALPHA#e14400e0": {
+      "children": [
+        "rfc3986-uri:ALPHA#beb3410a"
+      ],
+      "kind": "rule",
+      "name": "ALPHA",
+      "span": {
+        "end": 2631,
+        "source": "rfc3986-uri",
+        "start": 2598
+      }
+    },
+    "rfc3986-uri:DIGIT#0a14dd82": {
+      "children": [
+        "rfc3986-uri:DIGIT#8d4940dd"
+      ],
+      "kind": "rule",
+      "name": "DIGIT",
+      "span": {
+        "end": 2655,
+        "source": "rfc3986-uri",
+        "start": 2632
+      }
+    },
+    "rfc3986-uri:DIGIT#8d4940dd": {
+      "kind": "terminal",
+      "name": "%x30-39"
+    },
+    "rfc3986-uri:HEXDIG#17ea24f6": {
+      "kind": "terminal",
+      "name": "\"C\""
+    },
+    "rfc3986-uri:HEXDIG#1ba197e5": {
+      "kind": "terminal",
+      "name": "\"D\""
+    },
+    "rfc3986-uri:HEXDIG#2f9f8932": {
+      "kind": "terminal",
+      "name": "\"F\""
+    },
+    "rfc3986-uri:HEXDIG#48f6aa06": {
+      "children": [
+        "rfc3986-uri:HEXDIG#b6d02e8e",
+        "rfc3986-uri:HEXDIG#e694ac1d",
+        "rfc3986-uri:HEXDIG#7318c78b",
+        "rfc3986-uri:HEXDIG#17ea24f6",
+        "rfc3986-uri:HEXDIG#1ba197e5",
+        "rfc3986-uri:HEXDIG#8acdba61",
+        "rfc3986-uri:HEXDIG#2f9f8932"
+      ],
+      "kind": "alternation",
+      "name": "alternation"
+    },
+    "rfc3986-uri:HEXDIG#7318c78b": {
+      "kind": "terminal",
+      "name": "\"B\""
+    },
+    "rfc3986-uri:HEXDIG#8acdba61": {
+      "kind": "terminal",
+      "name": "\"E\""
+    },
+    "rfc3986-uri:HEXDIG#b6d02e8e": {
+      "kind": "reference",
+      "name": "DIGIT"
+    },
+    "rfc3986-uri:HEXDIG#d243eda3": {
+      "children": [
+        "rfc3986-uri:HEXDIG#48f6aa06"
+      ],
+      "kind": "rule",
+      "name": "HEXDIG",
+      "span": {
+        "end": 2713,
+        "source": "rfc3986-uri",
+        "start": 2656
+      }
+    },
+    "rfc3986-uri:HEXDIG#e694ac1d": {
+      "kind": "terminal",
+      "name": "\"A\""
+    },
+    "rfc3986-uri:IP-literal#05d46745": {
+      "children": [
+        "rfc3986-uri:IP-literal#1c968bc3",
+        "rfc3986-uri:IP-literal#1fc06280",
+        "rfc3986-uri:IP-literal#1bca6b29"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:IP-literal#1bca6b29": {
+      "kind": "terminal",
+      "name": "\"]\""
+    },
+    "rfc3986-uri:IP-literal#1c968bc3": {
+      "kind": "terminal",
+      "name": "\"[\""
+    },
+    "rfc3986-uri:IP-literal#1fc06280": {
+      "children": [
+        "rfc3986-uri:IP-literal#d3d5893c"
+      ],
+      "kind": "group",
+      "name": "group"
+    },
+    "rfc3986-uri:IP-literal#615ca5b3": {
+      "children": [
+        "rfc3986-uri:IP-literal#05d46745"
+      ],
+      "kind": "rule",
+      "name": "IP-literal",
+      "span": {
+        "end": 792,
+        "source": "rfc3986-uri",
+        "start": 740
+      }
+    },
+    "rfc3986-uri:IP-literal#a7aafe85": {
+      "kind": "reference",
+      "name": "IPvFuture"
+    },
+    "rfc3986-uri:IP-literal#d3d5893c": {
+      "children": [
+        "rfc3986-uri:IP-literal#ea51ea7b",
+        "rfc3986-uri:IP-literal#a7aafe85"
+      ],
+      "kind": "alternation",
+      "name": "alternation"
+    },
+    "rfc3986-uri:IP-literal#ea51ea7b": {
+      "kind": "reference",
+      "name": "IPv6address"
+    },
+    "rfc3986-uri:IPv4address#1dd6bd5e": {
+      "kind": "terminal",
+      "name": "\".\""
+    },
+    "rfc3986-uri:IPv4address#394cf479": {
+      "kind": "reference",
+      "name": "dec-octet"
+    },
+    "rfc3986-uri:IPv4address#605943cc": {
+      "kind": "reference",
+      "name": "dec-octet"
+    },
+    "rfc3986-uri:IPv4address#69c9d9e0": {
+      "kind": "reference",
+      "name": "dec-octet"
+    },
+    "rfc3986-uri:IPv4address#72adee99": {
+      "kind": "terminal",
+      "name": "\".\""
+    },
+    "rfc3986-uri:IPv4address#858ec30c": {
+      "children": [
+        "rfc3986-uri:IPv4address#605943cc",
+        "rfc3986-uri:IPv4address#72adee99",
+        "rfc3986-uri:IPv4address#69c9d9e0",
+        "rfc3986-uri:IPv4address#1dd6bd5e",
+        "rfc3986-uri:IPv4address#394cf479",
+        "rfc3986-uri:IPv4address#902d5572",
+        "rfc3986-uri:IPv4address#b10f42ae"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:IPv4address#902d5572": {
+      "kind": "terminal",
+      "name": "\".\""
+    },
+    "rfc3986-uri:IPv4address#b10f42ae": {
+      "kind": "reference",
+      "name": "dec-octet"
+    },
+    "rfc3986-uri:IPv4address#d1e871a6": {
+      "children": [
+        "rfc3986-uri:IPv4address#858ec30c"
+      ],
+      "kind": "rule",
+      "name": "IPv4address",
+      "span": {
+        "end": 1503,
+        "source": "rfc3986-uri",
+        "start": 1436
+      }
+    },
+    "rfc3986-uri:IPv6address#002c85f2": {
+      "children": [
+        "rfc3986-uri:IPv6address#6f7baef2"
+      ],
+      "kind": "repetition",
+      "name": "3(...)"
+    },
+    "rfc3986-uri:IPv6address#01f7320e": {
+      "kind": "reference",
+      "name": "ls32"
+    },
+    "rfc3986-uri:IPv6address#0823cb6a": {
+      "children": [
+        "rfc3986-uri:IPv6address#9a9740e0"
+      ],
+      "kind": "group",
+      "name": "group"
+    },
+    "rfc3986-uri:IPv6address#092d01c6": {
+      "children": [
+        "rfc3986-uri:IPv6address#f1b8dfdd"
+      ],
+      "kind": "optional",
+      "name": "optional"
+    },
+    "rfc3986-uri:IPv6address#0c207793": {
+      "children": [
+        "rfc3986-uri:IPv6address#54b4ce18"
+      ],
+      "kind": "repetition",
+      "name": "4(...)"
+    },
+    "rfc3986-uri:IPv6address#0c22d5e3": {
+      "kind": "reference",
+      "name": "h16"
+    },
+    "rfc3986-uri:IPv6address#0dccec30": {
+      "kind": "terminal",
+      "name": "\":\""
+    },
+    "rfc3986-uri:IPv6address#0dd85a92": {
+      "children": [
+        "rfc3986-uri:IPv6address#ba69a4f6",
+        "rfc3986-uri:IPv6address#1359e8cc",
+        "rfc3986-uri:IPv6address#0c207793",
+        "rfc3986-uri:IPv6address#c6735b88"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:IPv6address#0f256261": {
+      "children": [
+        "rfc3986-uri:IPv6address#092d01c6",
+        "rfc3986-uri:IPv6address#7fcf43ea",
+        "rfc3986-uri:IPv6address#2f729b27",
+        "rfc3986-uri:IPv6address#a4be50a9"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:IPv6address#1225d44b": {
+      "children": [
+        "rfc3986-uri:IPv6address#f4a39617"
+      ],
+      "kind": "rule",
+      "name": "IPv6address",
+      "span": {
+        "end": 1362,
+        "source": "rfc3986-uri",
+        "start": 864
+      }
+    },
+    "rfc3986-uri:IPv6address#1359e8cc": {
+      "kind": "terminal",
+      "name": "\"::\""
+    },
+    "rfc3986-uri:IPv6address#165bb778": {
+      "kind": "reference",
+      "name": "h16"
+    },
+    "rfc3986-uri:IPv6address#1a5ba20b": {
+      "kind": "terminal",
+      "name": "\":\""
+    },
+    "rfc3986-uri:IPv6address#1cb871ab": {
+      "kind": "terminal",
+      "name": "\"::\""
+    },
+    "rfc3986-uri:IPv6address#1e36256b": {
+      "children": [
+        "rfc3986-uri:IPv6address#ffa9cbc6",
+        "rfc3986-uri:IPv6address#2a5bd6c3"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:IPv6address#2386ae9c": {
+      "children": [
+        "rfc3986-uri:IPv6address#ded3d25e",
+        "rfc3986-uri:IPv6address#6bcc9f19"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:IPv6address#25fc1624": {
+      "kind": "reference",
+      "name": "h16"
+    },
+    "rfc3986-uri:IPv6address#272887d9": {
+      "children": [
+        "rfc3986-uri:IPv6address#1e36256b"
+      ],
+      "kind": "group",
+      "name": "group"
+    },
+    "rfc3986-uri:IPv6address#27d98cbf": {
+      "children": [
+        "rfc3986-uri:IPv6address#c38a6c3b"
+      ],
+      "kind": "repetition",
+      "name": "*5(...)"
+    },
+    "rfc3986-uri:IPv6address#2a5bd6c3": {
+      "kind": "terminal",
+      "name": "\":\""
+    },
+    "rfc3986-uri:IPv6address#2d4fa5c1": {
+      "children": [
+        "rfc3986-uri:IPv6address#2386ae9c"
+      ],
+      "kind": "optional",
+      "name": "optional"
+    },
+    "rfc3986-uri:IPv6address#2dbb5fc9": {
+      "children": [
+        "rfc3986-uri:IPv6address#33a0eb6a"
+      ],
+      "kind": "group",
+      "name": "group"
+    },
+    "rfc3986-uri:IPv6address#2f729b27": {
+      "children": [
+        "rfc3986-uri:IPv6address#272887d9"
+      ],
+      "kind": "repetition",
+      "name": "2(...)"
+    },
+    "rfc3986-uri:IPv6address#33a0eb6a": {
+      "children": [
+        "rfc3986-uri:IPv6address#670b1538",
+        "rfc3986-uri:IPv6address#0dccec30"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:IPv6address#38b4d6ef": {
+      "kind": "reference",
+      "name": "h16"
+    },
+    "rfc3986-uri:IPv6address#39a56f1d": {
+      "children": [
+        "rfc3986-uri:IPv6address#d78ae4a0",
+        "rfc3986-uri:IPv6address#a3e57b7a"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:IPv6address#42a9a475": {
+      "children": [
+        "rfc3986-uri:IPv6address#39a56f1d"
+      ],
+      "kind": "optional",
+      "name": "optional"
+    },
+    "rfc3986-uri:IPv6address#43acc98f": {
+      "children": [
+        "rfc3986-uri:IPv6address#38b4d6ef",
+        "rfc3986-uri:IPv6address#b808517b"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:IPv6address#46c3bea2": {
+      "children": [
+        "rfc3986-uri:IPv6address#27d98cbf",
+        "rfc3986-uri:IPv6address#bd1d8fd5"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:IPv6address#47690101": {
+      "kind": "reference",
+      "name": "h16"
+    },
+    "rfc3986-uri:IPv6address#480bc553": {
+      "children": [
+        "rfc3986-uri:IPv6address#43acc98f"
+      ],
+      "kind": "group",
+      "name": "group"
+    },
+    "rfc3986-uri:IPv6address#4969301d": {
+      "kind": "reference",
+      "name": "h16"
+    },
+    "rfc3986-uri:IPv6address#4e925bd5": {
+      "children": [
+        "rfc3986-uri:IPv6address#ab4c7c7a"
+      ],
+      "kind": "group",
+      "name": "group"
+    },
+    "rfc3986-uri:IPv6address#54b4ce18": {
+      "children": [
+        "rfc3986-uri:IPv6address#fd7cab24"
+      ],
+      "kind": "group",
+      "name": "group"
+    },
+    "rfc3986-uri:IPv6address#57ca8754": {
+      "children": [
+        "rfc3986-uri:IPv6address#25fc1624",
+        "rfc3986-uri:IPv6address#7df317c6"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:IPv6address#642ba364": {
+      "children": [
+        "rfc3986-uri:IPv6address#be9c25b9",
+        "rfc3986-uri:IPv6address#d65d5a8a"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:IPv6address#65444828": {
+      "children": [
+        "rfc3986-uri:IPv6address#db46e4cf"
+      ],
+      "kind": "repetition",
+      "name": "*2(...)"
+    },
+    "rfc3986-uri:IPv6address#6705c37c": {
+      "kind": "terminal",
+      "name": "\":\""
+    },
+    "rfc3986-uri:IPv6address#670b1538": {
+      "kind": "reference",
+      "name": "h16"
+    },
+    "rfc3986-uri:IPv6address#69b6a385": {
+      "kind": "reference",
+      "name": "ls32"
+    },
+    "rfc3986-uri:IPv6address#6bcc9f19": {
+      "kind": "reference",
+      "name": "h16"
+    },
+    "rfc3986-uri:IPv6address#6f7baef2": {
+      "children": [
+        "rfc3986-uri:IPv6address#e3874236"
+      ],
+      "kind": "group",
+      "name": "group"
+    },
+    "rfc3986-uri:IPv6address#77af35fd": {
+      "kind": "terminal",
+      "name": "\":\""
+    },
+    "rfc3986-uri:IPv6address#7df317c6": {
+      "kind": "terminal",
+      "name": "\":\""
+    },
+    "rfc3986-uri:IPv6address#7e75a4d5": {
+      "children": [
+        "rfc3986-uri:IPv6address#b187a007",
+        "rfc3986-uri:IPv6address#ccf857ea"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:IPv6address#7fcf43ea": {
+      "kind": "terminal",
+      "name": "\"::\""
+    },
+    "rfc3986-uri:IPv6address#8a7919c4": {
+      "kind": "terminal",
+      "name": "\"::\""
+    },
+    "rfc3986-uri:IPv6address#8f584802": {
+      "children": [
+        "rfc3986-uri:IPv6address#9ba63d3b",
+        "rfc3986-uri:IPv6address#ebd1fe8d",
+        "rfc3986-uri:IPv6address#a207648f"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:IPv6address#9502b09d": {
+      "children": [
+        "rfc3986-uri:IPv6address#fce3cd50",
+        "rfc3986-uri:IPv6address#0c22d5e3"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:IPv6address#9a9740e0": {
+      "children": [
+        "rfc3986-uri:IPv6address#edba6c10",
+        "rfc3986-uri:IPv6address#c07da594"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:IPv6address#9ba63d3b": {
+      "children": [
+        "rfc3986-uri:IPv6address#46c3bea2"
+      ],
+      "kind": "optional",
+      "name": "optional"
+    },
+    "rfc3986-uri:IPv6address#9cbf3f27": {
+      "kind": "terminal",
+      "name": "\"::\""
+    },
+    "rfc3986-uri:IPv6address#a1757ffa": {
+      "kind": "reference",
+      "name": "h16"
+    },
+    "rfc3986-uri:IPv6address#a207648f": {
+      "kind": "reference",
+      "name": "h16"
+    },
+    "rfc3986-uri:IPv6address#a33b61cd": {
+      "kind": "reference",
+      "name": "h16"
+    },
+    "rfc3986-uri:IPv6address#a3e57b7a": {
+      "kind": "reference",
+      "name": "h16"
+    },
+    "rfc3986-uri:IPv6address#a4be50a9": {
+      "kind": "reference",
+      "name": "ls32"
+    },
+    "rfc3986-uri:IPv6address#a6c8b444": {
+      "children": [
+        "rfc3986-uri:IPv6address#cc61b806",
+        "rfc3986-uri:IPv6address#1a5ba20b"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:IPv6address#a873fdc1": {
+      "children": [
+        "rfc3986-uri:IPv6address#2dbb5fc9"
+      ],
+      "kind": "repetition",
+      "name": "5(...)"
+    },
+    "rfc3986-uri:IPv6address#ab4c7c7a": {
+      "children": [
+        "rfc3986-uri:IPv6address#cf236d1d",
+        "rfc3986-uri:IPv6address#c74b5246"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:IPv6address#ab959b08": {
+      "children": [
+        "rfc3986-uri:IPv6address#d84419f5"
+      ],
+      "kind": "group",
+      "name": "group"
+    },
+    "rfc3986-uri:IPv6address#b187a007": {
+      "children": [
+        "rfc3986-uri:IPv6address#e05d307b"
+      ],
+      "kind": "repetition",
+      "name": "*3(...)"
+    },
+    "rfc3986-uri:IPv6address#b3e49c41": {
+      "children": [
+        "rfc3986-uri:IPv6address#42a9a475",
+        "rfc3986-uri:IPv6address#9cbf3f27"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:IPv6address#b4968844": {
+      "kind": "reference",
+      "name": "ls32"
+    },
+    "rfc3986-uri:IPv6address#b808517b": {
+      "kind": "terminal",
+      "name": "\":\""
+    },
+    "rfc3986-uri:IPv6address#ba69a4f6": {
+      "children": [
+        "rfc3986-uri:IPv6address#a33b61cd"
+      ],
+      "kind": "optional",
+      "name": "optional"
+    },
+    "rfc3986-uri:IPv6address#bd1d8fd5": {
+      "kind": "reference",
+      "name": "h16"
+    },
+    "rfc3986-uri:IPv6address#be9c25b9": {
+      "children": [
+        "rfc3986-uri:IPv6address#0823cb6a"
+      ],
+      "kind": "repetition",
+      "name": "6(...)"
+    },
+    "rfc3986-uri:IPv6address#c07da594": {
+      "kind": "terminal",
+      "name": "\":\""
+    },
+    "rfc3986-uri:IPv6address#c30708d0": {
+      "kind": "reference",
+      "name": "h16"
+    },
+    "rfc3986-uri:IPv6address#c38a6c3b": {
+      "children": [
+        "rfc3986-uri:IPv6address#a6c8b444"
+      ],
+      "kind": "group",
+      "name": "group"
+    },
+    "rfc3986-uri:IPv6address#c6735b88": {
+      "kind": "reference",
+      "name": "ls32"
+    },
+    "rfc3986-uri:IPv6address#c74b5246": {
+      "kind": "terminal",
+      "name": "\":\""
+    },
+    "rfc3986-uri:IPv6address#cc61b806": {
+      "kind": "reference",
+      "name": "h16"
+    },
+    "rfc3986-uri:IPv6address#ccd16e09": {
+      "children": [
+        "rfc3986-uri:IPv6address#9502b09d"
+      ],
+      "kind": "optional",
+      "name": "optional"
+    },
+    "rfc3986-uri:IPv6address#ccf857ea": {
+      "kind": "reference",
+      "name": "h16"
+    },
+    "rfc3986-uri:IPv6address#cf236d1d": {
+      "kind": "reference",
+      "name": "h16"
+    },
+    "rfc3986-uri:IPv6address#cf26fa14": {
+      "children": [
+        "rfc3986-uri:IPv6address#d6f94341",
+        "rfc3986-uri:IPv6address#e082b59d",
+        "rfc3986-uri:IPv6address#165bb778",
+        "rfc3986-uri:IPv6address#dbd542c9",
+        "rfc3986-uri:IPv6address#b4968844"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:IPv6address#d65d5a8a": {
+      "kind": "reference",
+      "name": "ls32"
+    },
+    "rfc3986-uri:IPv6address#d6f94341": {
+      "children": [
+        "rfc3986-uri:IPv6address#7e75a4d5"
+      ],
+      "kind": "optional",
+      "name": "optional"
+    },
+    "rfc3986-uri:IPv6address#d78ae4a0": {
+      "children": [
+        "rfc3986-uri:IPv6address#ab959b08"
+      ],
+      "kind": "repetition",
+      "name": "*6(...)"
+    },
+    "rfc3986-uri:IPv6address#d84419f5": {
+      "children": [
+        "rfc3986-uri:IPv6address#47690101",
+        "rfc3986-uri:IPv6address#f3c3fd46"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:IPv6address#da644076": {
+      "kind": "terminal",
+      "name": "\":\""
+    },
+    "rfc3986-uri:IPv6address#db46e4cf": {
+      "children": [
+        "rfc3986-uri:IPv6address#fce3b808"
+      ],
+      "kind": "group",
+      "name": "group"
+    },
+    "rfc3986-uri:IPv6address#dbd542c9": {
+      "kind": "terminal",
+      "name": "\":\""
+    },
+    "rfc3986-uri:IPv6address#ded3d25e": {
+      "children": [
+        "rfc3986-uri:IPv6address#4e925bd5"
+      ],
+      "kind": "repetition",
+      "name": "*1(...)"
+    },
+    "rfc3986-uri:IPv6address#e05d307b": {
+      "children": [
+        "rfc3986-uri:IPv6address#57ca8754"
+      ],
+      "kind": "group",
+      "name": "group"
+    },
+    "rfc3986-uri:IPv6address#e082b59d": {
+      "kind": "terminal",
+      "name": "\"::\""
+    },
+    "rfc3986-uri:IPv6address#e3874236": {
+      "children": [
+        "rfc3986-uri:IPv6address#a1757ffa",
+        "rfc3986-uri:IPv6address#77af35fd"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:IPv6address#e3f49bc9": {
+      "children": [
+        "rfc3986-uri:IPv6address#2d4fa5c1",
+        "rfc3986-uri:IPv6address#1cb871ab",
+        "rfc3986-uri:IPv6address#002c85f2",
+        "rfc3986-uri:IPv6address#ed49979f"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:IPv6address#e48965aa": {
+      "children": [
+        "rfc3986-uri:IPv6address#ccd16e09",
+        "rfc3986-uri:IPv6address#ebeef06b",
+        "rfc3986-uri:IPv6address#01f7320e"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:IPv6address#e75510f6": {
+      "children": [
+        "rfc3986-uri:IPv6address#8a7919c4",
+        "rfc3986-uri:IPv6address#a873fdc1",
+        "rfc3986-uri:IPv6address#69b6a385"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:IPv6address#ebd1fe8d": {
+      "kind": "terminal",
+      "name": "\"::\""
+    },
+    "rfc3986-uri:IPv6address#ebeef06b": {
+      "kind": "terminal",
+      "name": "\"::\""
+    },
+    "rfc3986-uri:IPv6address#ed49979f": {
+      "kind": "reference",
+      "name": "ls32"
+    },
+    "rfc3986-uri:IPv6address#edba6c10": {
+      "kind": "reference",
+      "name": "h16"
+    },
+    "rfc3986-uri:IPv6address#f0886d1a": {
+      "kind": "reference",
+      "name": "h16"
+    },
+    "rfc3986-uri:IPv6address#f1b8dfdd": {
+      "children": [
+        "rfc3986-uri:IPv6address#65444828",
+        "rfc3986-uri:IPv6address#f0886d1a"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:IPv6address#f3c3fd46": {
+      "kind": "terminal",
+      "name": "\":\""
+    },
+    "rfc3986-uri:IPv6address#f4a39617": {
+      "children": [
+        "rfc3986-uri:IPv6address#642ba364",
+        "rfc3986-uri:IPv6address#e75510f6",
+        "rfc3986-uri:IPv6address#0dd85a92",
+        "rfc3986-uri:IPv6address#e3f49bc9",
+        "rfc3986-uri:IPv6address#0f256261",
+        "rfc3986-uri:IPv6address#cf26fa14",
+        "rfc3986-uri:IPv6address#e48965aa",
+        "rfc3986-uri:IPv6address#8f584802",
+        "rfc3986-uri:IPv6address#b3e49c41"
+      ],
+      "kind": "alternation",
+      "name": "alternation"
+    },
+    "rfc3986-uri:IPv6address#fce3b808": {
+      "children": [
+        "rfc3986-uri:IPv6address#4969301d",
+        "rfc3986-uri:IPv6address#6705c37c"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:IPv6address#fce3cd50": {
+      "children": [
+        "rfc3986-uri:IPv6address#480bc553"
+      ],
+      "kind": "repetition",
+      "name": "*4(...)"
+    },
+    "rfc3986-uri:IPv6address#fd7cab24": {
+      "children": [
+        "rfc3986-uri:IPv6address#c30708d0",
+        "rfc3986-uri:IPv6address#da644076"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:IPv6address#ffa9cbc6": {
+      "kind": "reference",
+      "name": "h16"
+    },
+    "rfc3986-uri:IPvFuture#0a6a4025": {
+      "kind": "reference",
+      "name": "sub-delims"
+    },
+    "rfc3986-uri:IPvFuture#2294e31a": {
+      "children": [
+        "rfc3986-uri:IPvFuture#efce97d4"
+      ],
+      "kind": "rule",
+      "name": "IPvFuture",
+      "span": {
+        "end": 862,
+        "source": "rfc3986-uri",
+        "start": 794
+      }
+    },
+    "rfc3986-uri:IPvFuture#307b320d": {
+      "kind": "reference",
+      "name": "unreserved"
+    },
+    "rfc3986-uri:IPvFuture#3dbccbd0": {
+      "kind": "reference",
+      "name": "HEXDIG"
+    },
+    "rfc3986-uri:IPvFuture#628f225a": {
+      "children": [
+        "rfc3986-uri:IPvFuture#307b320d",
+        "rfc3986-uri:IPvFuture#0a6a4025",
+        "rfc3986-uri:IPvFuture#acfb182a"
+      ],
+      "kind": "alternation",
+      "name": "alternation"
+    },
+    "rfc3986-uri:IPvFuture#6976a499": {
+      "children": [
+        "rfc3986-uri:IPvFuture#a7f33a9d"
+      ],
+      "kind": "repetition",
+      "name": "1*(...)"
+    },
+    "rfc3986-uri:IPvFuture#a7f33a9d": {
+      "children": [
+        "rfc3986-uri:IPvFuture#628f225a"
+      ],
+      "kind": "group",
+      "name": "group"
+    },
+    "rfc3986-uri:IPvFuture#acfb182a": {
+      "kind": "terminal",
+      "name": "\":\""
+    },
+    "rfc3986-uri:IPvFuture#af415ac7": {
+      "kind": "terminal",
+      "name": "\"v\""
+    },
+    "rfc3986-uri:IPvFuture#d52d73e9": {
+      "children": [
+        "rfc3986-uri:IPvFuture#3dbccbd0"
+      ],
+      "kind": "repetition",
+      "name": "1*(...)"
+    },
+    "rfc3986-uri:IPvFuture#ee001e2f": {
+      "kind": "terminal",
+      "name": "\".\""
+    },
+    "rfc3986-uri:IPvFuture#efce97d4": {
+      "children": [
+        "rfc3986-uri:IPvFuture#af415ac7",
+        "rfc3986-uri:IPvFuture#d52d73e9",
+        "rfc3986-uri:IPvFuture#ee001e2f",
+        "rfc3986-uri:IPvFuture#6976a499"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:URI#049d1fee": {
+      "kind": "reference",
+      "name": "hier-part"
+    },
+    "rfc3986-uri:URI#0c142d58": {
+      "kind": "reference",
+      "name": "fragment"
+    },
+    "rfc3986-uri:URI#153996f6": {
+      "kind": "reference",
+      "name": "scheme"
+    },
+    "rfc3986-uri:URI#1c64989c": {
+      "children": [
+        "rfc3986-uri:URI#153996f6",
+        "rfc3986-uri:URI#ba27121c",
+        "rfc3986-uri:URI#049d1fee",
+        "rfc3986-uri:URI#400a6387",
+        "rfc3986-uri:URI#4f9432b5"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:URI#1f3ada6f": {
+      "children": [
+        "rfc3986-uri:URI#e7cf0116",
+        "rfc3986-uri:URI#0c142d58"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:URI#400a6387": {
+      "children": [
+        "rfc3986-uri:URI#f4cde077"
+      ],
+      "kind": "optional",
+      "name": "optional"
+    },
+    "rfc3986-uri:URI#4c4da3ed": {
+      "children": [
+        "rfc3986-uri:URI#1c64989c"
+      ],
+      "kind": "rule",
+      "name": "URI",
+      "span": {
+        "end": 72,
+        "source": "rfc3986-uri",
+        "start": 5
+      }
+    },
+    "rfc3986-uri:URI#4f9432b5": {
+      "children": [
+        "rfc3986-uri:URI#1f3ada6f"
+      ],
+      "kind": "optional",
+      "name": "optional"
+    },
+    "rfc3986-uri:URI#5eff9c7f": {
+      "kind": "terminal",
+      "name": "\"?\""
+    },
+    "rfc3986-uri:URI#9c3d73c4": {
+      "kind": "reference",
+      "name": "query"
+    },
+    "rfc3986-uri:URI#ba27121c": {
+      "kind": "terminal",
+      "name": "\":\""
+    },
+    "rfc3986-uri:URI#e7cf0116": {
+      "kind": "terminal",
+      "name": "\"#\""
+    },
+    "rfc3986-uri:URI#f4cde077": {
+      "children": [
+        "rfc3986-uri:URI#5eff9c7f",
+        "rfc3986-uri:URI#9c3d73c4"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:URI-reference#0783e772": {
+      "kind": "reference",
+      "name": "URI"
+    },
+    "rfc3986-uri:URI-reference#1bc432aa": {
+      "children": [
+        "rfc3986-uri:URI-reference#0783e772",
+        "rfc3986-uri:URI-reference#952ccf53"
+      ],
+      "kind": "alternation",
+      "name": "alternation"
+    },
+    "rfc3986-uri:URI-reference#952ccf53": {
+      "kind": "reference",
+      "name": "relative-ref"
+    },
+    "rfc3986-uri:URI-reference#b55032c5": {
+      "children": [
+        "rfc3986-uri:URI-reference#1bc432aa"
+      ],
+      "kind": "rule",
+      "name": "URI-reference",
+      "span": {
+        "end": 240,
+        "source": "rfc3986-uri",
+        "start": 206
+      }
+    },
+    "rfc3986-uri:absolute-URI#3c6e0606": {
+      "kind": "terminal",
+      "name": "\"?\""
+    },
+    "rfc3986-uri:absolute-URI#4fb7b4ad": {
+      "children": [
+        "rfc3986-uri:absolute-URI#ac37fc2a",
+        "rfc3986-uri:absolute-URI#d4d96d85",
+        "rfc3986-uri:absolute-URI#64f9fa40",
+        "rfc3986-uri:absolute-URI#55015e88"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:absolute-URI#55015e88": {
+      "children": [
+        "rfc3986-uri:absolute-URI#78d0e2c8"
+      ],
+      "kind": "optional",
+      "name": "optional"
+    },
+    "rfc3986-uri:absolute-URI#64f9fa40": {
+      "kind": "reference",
+      "name": "hier-part"
+    },
+    "rfc3986-uri:absolute-URI#78d0e2c8": {
+      "children": [
+        "rfc3986-uri:absolute-URI#3c6e0606",
+        "rfc3986-uri:absolute-URI#e47db922"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:absolute-URI#7f23cf25": {
+      "children": [
+        "rfc3986-uri:absolute-URI#4fb7b4ad"
+      ],
+      "kind": "rule",
+      "name": "absolute-URI",
+      "span": {
+        "end": 292,
+        "source": "rfc3986-uri",
+        "start": 242
+      }
+    },
+    "rfc3986-uri:absolute-URI#ac37fc2a": {
+      "kind": "reference",
+      "name": "scheme"
+    },
+    "rfc3986-uri:absolute-URI#d4d96d85": {
+      "kind": "terminal",
+      "name": "\":\""
+    },
+    "rfc3986-uri:absolute-URI#e47db922": {
+      "kind": "reference",
+      "name": "query"
+    },
+    "rfc3986-uri:authority#0103ac91": {
+      "children": [
+        "rfc3986-uri:authority#512458d2",
+        "rfc3986-uri:authority#c2bc8522"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:authority#051de496": {
+      "kind": "terminal",
+      "name": "\"@\""
+    },
+    "rfc3986-uri:authority#0c6f76d8": {
+      "children": [
+        "rfc3986-uri:authority#d8ee8dd6",
+        "rfc3986-uri:authority#051de496"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:authority#512458d2": {
+      "kind": "terminal",
+      "name": "\":\""
+    },
+    "rfc3986-uri:authority#671c00e6": {
+      "children": [
+        "rfc3986-uri:authority#81c1be29"
+      ],
+      "kind": "rule",
+      "name": "authority",
+      "span": {
+        "end": 598,
+        "source": "rfc3986-uri",
+        "start": 548
+      }
+    },
+    "rfc3986-uri:authority#81c1be29": {
+      "children": [
+        "rfc3986-uri:authority#be2402e7",
+        "rfc3986-uri:authority#96659858",
+        "rfc3986-uri:authority#f96c881a"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:authority#96659858": {
+      "kind": "reference",
+      "name": "host"
+    },
+    "rfc3986-uri:authority#be2402e7": {
+      "children": [
+        "rfc3986-uri:authority#0c6f76d8"
+      ],
+      "kind": "optional",
+      "name": "optional"
+    },
+    "rfc3986-uri:authority#c2bc8522": {
+      "kind": "reference",
+      "name": "port"
+    },
+    "rfc3986-uri:authority#d8ee8dd6": {
+      "kind": "reference",
+      "name": "userinfo"
+    },
+    "rfc3986-uri:authority#f96c881a": {
+      "children": [
+        "rfc3986-uri:authority#0103ac91"
+      ],
+      "kind": "optional",
+      "name": "optional"
+    },
+    "rfc3986-uri:dec-octet#015f95d2": {
+      "kind": "reference",
+      "name": "DIGIT"
+    },
+    "rfc3986-uri:dec-octet#0feb4668": {
+      "kind": "reference",
+      "name": "DIGIT"
+    },
+    "rfc3986-uri:dec-octet#139fb45e": {
+      "kind": "terminal",
+      "name": "\"25\""
+    },
+    "rfc3986-uri:dec-octet#42259534": {
+      "kind": "terminal",
+      "name": "%x30-34"
+    },
+    "rfc3986-uri:dec-octet#692ae727": {
+      "children": [
+        "rfc3986-uri:dec-octet#abc2452d"
+      ],
+      "kind": "rule",
+      "name": "dec-octet",
+      "span": {
+        "end": 1646,
+        "source": "rfc3986-uri",
+        "start": 1505
+      }
+    },
+    "rfc3986-uri:dec-octet#822c0240": {
+      "kind": "terminal",
+      "name": "%x31-39"
+    },
+    "rfc3986-uri:dec-octet#99c7dba2": {
+      "children": [
+        "rfc3986-uri:dec-octet#cab0a862",
+        "rfc3986-uri:dec-octet#42259534",
+        "rfc3986-uri:dec-octet#a66d96b3"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:dec-octet#a66d96b3": {
+      "kind": "reference",
+      "name": "DIGIT"
+    },
+    "rfc3986-uri:dec-octet#abc2452d": {
+      "children": [
+        "rfc3986-uri:dec-octet#015f95d2",
+        "rfc3986-uri:dec-octet#d77e0913",
+        "rfc3986-uri:dec-octet#d9e6c0c9",
+        "rfc3986-uri:dec-octet#99c7dba2",
+        "rfc3986-uri:dec-octet#c2cf0de3"
+      ],
+      "kind": "alternation",
+      "name": "alternation"
+    },
+    "rfc3986-uri:dec-octet#c20c3f36": {
+      "kind": "terminal",
+      "name": "\"1\""
+    },
+    "rfc3986-uri:dec-octet#c2cf0de3": {
+      "children": [
+        "rfc3986-uri:dec-octet#139fb45e",
+        "rfc3986-uri:dec-octet#fa19df62"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:dec-octet#c352d298": {
+      "kind": "reference",
+      "name": "DIGIT"
+    },
+    "rfc3986-uri:dec-octet#cab0a862": {
+      "kind": "terminal",
+      "name": "\"2\""
+    },
+    "rfc3986-uri:dec-octet#d28f5154": {
+      "children": [
+        "rfc3986-uri:dec-octet#c352d298"
+      ],
+      "kind": "repetition",
+      "name": "2(...)"
+    },
+    "rfc3986-uri:dec-octet#d77e0913": {
+      "children": [
+        "rfc3986-uri:dec-octet#822c0240",
+        "rfc3986-uri:dec-octet#0feb4668"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:dec-octet#d9e6c0c9": {
+      "children": [
+        "rfc3986-uri:dec-octet#c20c3f36",
+        "rfc3986-uri:dec-octet#d28f5154"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:dec-octet#fa19df62": {
+      "kind": "terminal",
+      "name": "%x30-35"
+    },
+    "rfc3986-uri:fragment#1e591865": {
+      "children": [
+        "rfc3986-uri:fragment#9d1ccafa"
+      ],
+      "kind": "group",
+      "name": "group"
+    },
+    "rfc3986-uri:fragment#9d1ccafa": {
+      "children": [
+        "rfc3986-uri:fragment#de4b2fc0",
+        "rfc3986-uri:fragment#ce01dd8a",
+        "rfc3986-uri:fragment#b6b0f491"
+      ],
+      "kind": "alternation",
+      "name": "alternation"
+    },
+    "rfc3986-uri:fragment#ae36814a": {
+      "children": [
+        "rfc3986-uri:fragment#f2479686"
+      ],
+      "kind": "rule",
+      "name": "fragment",
+      "span": {
+        "end": 2316,
+        "source": "rfc3986-uri",
+        "start": 2278
+      }
+    },
+    "rfc3986-uri:fragment#b6b0f491": {
+      "kind": "terminal",
+      "name": "\"?\""
+    },
+    "rfc3986-uri:fragment#ce01dd8a": {
+      "kind": "terminal",
+      "name": "\"/\""
+    },
+    "rfc3986-uri:fragment#de4b2fc0": {
+      "kind": "reference",
+      "name": "pchar"
+    },
+    "rfc3986-uri:fragment#f2479686": {
+      "children": [
+        "rfc3986-uri:fragment#1e591865"
+      ],
+      "kind": "repetition",
+      "name": "*(...)"
+    },
+    "rfc3986-uri:gen-delims#0bf9a02e": {
+      "kind": "terminal",
+      "name": "\"?\""
+    },
+    "rfc3986-uri:gen-delims#1c38855e": {
+      "kind": "terminal",
+      "name": "\"#\""
+    },
+    "rfc3986-uri:gen-delims#529d6e95": {
+      "kind": "terminal",
+      "name": "\"@\""
+    },
+    "rfc3986-uri:gen-delims#69bfdb56": {
+      "kind": "terminal",
+      "name": "\"[\""
+    },
+    "rfc3986-uri:gen-delims#8ed3d42b": {
+      "kind": "terminal",
+      "name": "\":\""
+    },
+    "rfc3986-uri:gen-delims#aee23604": {
+      "children": [
+        "rfc3986-uri:gen-delims#8ed3d42b",
+        "rfc3986-uri:gen-delims#f062a3c2",
+        "rfc3986-uri:gen-delims#0bf9a02e",
+        "rfc3986-uri:gen-delims#1c38855e",
+        "rfc3986-uri:gen-delims#69bfdb56",
+        "rfc3986-uri:gen-delims#ebd63865",
+        "rfc3986-uri:gen-delims#529d6e95"
+      ],
+      "kind": "alternation",
+      "name": "alternation"
+    },
+    "rfc3986-uri:gen-delims#b5a7a9bd": {
+      "children": [
+        "rfc3986-uri:gen-delims#aee23604"
+      ],
+      "kind": "rule",
+      "name": "gen-delims",
+      "span": {
+        "end": 2502,
+        "source": "rfc3986-uri",
+        "start": 2447
+      }
+    },
+    "rfc3986-uri:gen-delims#ebd63865": {
+      "kind": "terminal",
+      "name": "\"]\""
+    },
+    "rfc3986-uri:gen-delims#f062a3c2": {
+      "kind": "terminal",
+      "name": "\"/\""
+    },
+    "rfc3986-uri:h16#3c45e1dd": {
+      "children": [
+        "rfc3986-uri:h16#a3286fd6"
+      ],
+      "kind": "repetition",
+      "name": "1*4(...)"
+    },
+    "rfc3986-uri:h16#70905473": {
+      "children": [
+        "rfc3986-uri:h16#3c45e1dd"
+      ],
+      "kind": "rule",
+      "name": "h16",
+      "span": {
+        "end": 1389,
+        "source": "rfc3986-uri",
+        "start": 1364
+      }
+    },
+    "rfc3986-uri:h16#a3286fd6": {
+      "kind": "reference",
+      "name": "HEXDIG"
+    },
+    "rfc3986-uri:hier-part#18d8a445": {
+      "kind": "terminal",
+      "name": "\"//\""
+    },
+    "rfc3986-uri:hier-part#356c5dfd": {
+      "children": [
+        "rfc3986-uri:hier-part#18d8a445",
+        "rfc3986-uri:hier-part#717e1a36",
+        "rfc3986-uri:hier-part#e9854769"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:hier-part#3b586367": {
+      "children": [
+        "rfc3986-uri:hier-part#356c5dfd",
+        "rfc3986-uri:hier-part#84603568",
+        "rfc3986-uri:hier-part#64c3585b",
+        "rfc3986-uri:hier-part#fcf49535"
+      ],
+      "kind": "alternation",
+      "name": "alternation"
+    },
+    "rfc3986-uri:hier-part#5187bcf1": {
+      "children": [
+        "rfc3986-uri:hier-part#3b586367"
+      ],
+      "kind": "rule",
+      "name": "hier-part",
+      "span": {
+        "end": 204,
+        "source": "rfc3986-uri",
+        "start": 74
+      }
+    },
+    "rfc3986-uri:hier-part#64c3585b": {
+      "kind": "reference",
+      "name": "path-rootless"
+    },
+    "rfc3986-uri:hier-part#717e1a36": {
+      "kind": "reference",
+      "name": "authority"
+    },
+    "rfc3986-uri:hier-part#84603568": {
+      "kind": "reference",
+      "name": "path-absolute"
+    },
+    "rfc3986-uri:hier-part#e9854769": {
+      "kind": "reference",
+      "name": "path-abempty"
+    },
+    "rfc3986-uri:hier-part#fcf49535": {
+      "kind": "reference",
+      "name": "path-empty"
+    },
+    "rfc3986-uri:host#108ca71c": {
+      "children": [
+        "rfc3986-uri:host#ed4edee0",
+        "rfc3986-uri:host#55a6162a",
+        "rfc3986-uri:host#beaa09aa"
+      ],
+      "kind": "alternation",
+      "name": "alternation"
+    },
+    "rfc3986-uri:host#55a6162a": {
+      "kind": "reference",
+      "name": "IPv4address"
+    },
+    "rfc3986-uri:host#beaa09aa": {
+      "kind": "reference",
+      "name": "reg-name"
+    },
+    "rfc3986-uri:host#beda0476": {
+      "children": [
+        "rfc3986-uri:host#108ca71c"
+      ],
+      "kind": "rule",
+      "name": "host",
+      "span": {
+        "end": 715,
+        "source": "rfc3986-uri",
+        "start": 664
+      }
+    },
+    "rfc3986-uri:host#ed4edee0": {
+      "kind": "reference",
+      "name": "IP-literal"
+    },
+    "rfc3986-uri:ls32#1a4ce41e": {
+      "children": [
+        "rfc3986-uri:ls32#7e515686",
+        "rfc3986-uri:ls32#bb996732"
+      ],
+      "kind": "alternation",
+      "name": "alternation"
+    },
+    "rfc3986-uri:ls32#3e904a82": {
+      "kind": "terminal",
+      "name": "\":\""
+    },
+    "rfc3986-uri:ls32#7843f469": {
+      "children": [
+        "rfc3986-uri:ls32#1a4ce41e"
+      ],
+      "kind": "rule",
+      "name": "ls32",
+      "span": {
+        "end": 1435,
+        "source": "rfc3986-uri",
+        "start": 1390
+      }
+    },
+    "rfc3986-uri:ls32#7e515686": {
+      "children": [
+        "rfc3986-uri:ls32#994abc67"
+      ],
+      "kind": "group",
+      "name": "group"
+    },
+    "rfc3986-uri:ls32#994abc67": {
+      "children": [
+        "rfc3986-uri:ls32#a91d883e",
+        "rfc3986-uri:ls32#3e904a82",
+        "rfc3986-uri:ls32#a76e02eb"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:ls32#a76e02eb": {
+      "kind": "reference",
+      "name": "h16"
+    },
+    "rfc3986-uri:ls32#a91d883e": {
+      "kind": "reference",
+      "name": "h16"
+    },
+    "rfc3986-uri:ls32#bb996732": {
+      "kind": "reference",
+      "name": "IPv4address"
+    },
+    "rfc3986-uri:path#1b714f17": {
+      "kind": "reference",
+      "name": "path-abempty"
+    },
+    "rfc3986-uri:path#5cfcd61b": {
+      "kind": "reference",
+      "name": "path-rootless"
+    },
+    "rfc3986-uri:path#7876c724": {
+      "children": [
+        "rfc3986-uri:path#1b714f17",
+        "rfc3986-uri:path#a2c815c4",
+        "rfc3986-uri:path#ef8f3fec",
+        "rfc3986-uri:path#5cfcd61b",
+        "rfc3986-uri:path#ee1420a2"
+      ],
+      "kind": "alternation",
+      "name": "alternation"
+    },
+    "rfc3986-uri:path#a2c815c4": {
+      "kind": "reference",
+      "name": "path-absolute"
+    },
+    "rfc3986-uri:path#c73ce2aa": {
+      "children": [
+        "rfc3986-uri:path#7876c724"
+      ],
+      "kind": "rule",
+      "name": "path",
+      "span": {
+        "end": 1853,
+        "source": "rfc3986-uri",
+        "start": 1708
+      }
+    },
+    "rfc3986-uri:path#ee1420a2": {
+      "kind": "reference",
+      "name": "path-empty"
+    },
+    "rfc3986-uri:path#ef8f3fec": {
+      "kind": "reference",
+      "name": "path-noscheme"
+    },
+    "rfc3986-uri:path-abempty#512caa47": {
+      "children": [
+        "rfc3986-uri:path-abempty#ebc23c52"
+      ],
+      "kind": "repetition",
+      "name": "*(...)"
+    },
+    "rfc3986-uri:path-abempty#6aa39cf8": {
+      "children": [
+        "rfc3986-uri:path-abempty#512caa47"
+      ],
+      "kind": "rule",
+      "name": "path-abempty",
+      "span": {
+        "end": 1887,
+        "source": "rfc3986-uri",
+        "start": 1855
+      }
+    },
+    "rfc3986-uri:path-abempty#a65ad097": {
+      "kind": "reference",
+      "name": "segment"
+    },
+    "rfc3986-uri:path-abempty#c9a58b76": {
+      "kind": "terminal",
+      "name": "\"/\""
+    },
+    "rfc3986-uri:path-abempty#ebc23c52": {
+      "children": [
+        "rfc3986-uri:path-abempty#f97c23df"
+      ],
+      "kind": "group",
+      "name": "group"
+    },
+    "rfc3986-uri:path-abempty#f97c23df": {
+      "children": [
+        "rfc3986-uri:path-abempty#c9a58b76",
+        "rfc3986-uri:path-abempty#a65ad097"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:path-absolute#122d93bc": {
+      "children": [
+        "rfc3986-uri:path-absolute#4e87f57a"
+      ],
+      "kind": "optional",
+      "name": "optional"
+    },
+    "rfc3986-uri:path-absolute#4e87f57a": {
+      "children": [
+        "rfc3986-uri:path-absolute#9b0ef576",
+        "rfc3986-uri:path-absolute#751cb9b6"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:path-absolute#4f984ae7": {
+      "children": [
+        "rfc3986-uri:path-absolute#d8b7c876",
+        "rfc3986-uri:path-absolute#b544b7c6"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:path-absolute#751cb9b6": {
+      "children": [
+        "rfc3986-uri:path-absolute#bfa3a6a9"
+      ],
+      "kind": "repetition",
+      "name": "*(...)"
+    },
+    "rfc3986-uri:path-absolute#9b0ef576": {
+      "kind": "reference",
+      "name": "segment-nz"
+    },
+    "rfc3986-uri:path-absolute#a007ab6e": {
+      "children": [
+        "rfc3986-uri:path-absolute#e0dd2ab2"
+      ],
+      "kind": "rule",
+      "name": "path-absolute",
+      "span": {
+        "end": 1939,
+        "source": "rfc3986-uri",
+        "start": 1888
+      }
+    },
+    "rfc3986-uri:path-absolute#b544b7c6": {
+      "kind": "reference",
+      "name": "segment"
+    },
+    "rfc3986-uri:path-absolute#b9d88362": {
+      "kind": "terminal",
+      "name": "\"/\""
+    },
+    "rfc3986-uri:path-absolute#bfa3a6a9": {
+      "children": [
+        "rfc3986-uri:path-absolute#4f984ae7"
+      ],
+      "kind": "group",
+      "name": "group"
+    },
+    "rfc3986-uri:path-absolute#d8b7c876": {
+      "kind": "terminal",
+      "name": "\"/\""
+    },
+    "rfc3986-uri:path-absolute#e0dd2ab2": {
+      "children": [
+        "rfc3986-uri:path-absolute#b9d88362",
+        "rfc3986-uri:path-absolute#122d93bc"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:path-empty#31e57e34": {
+      "children": [
+        "rfc3986-uri:path-empty#9046b230"
+      ],
+      "kind": "rule",
+      "name": "path-empty",
+      "span": {
+        "end": 2055,
+        "source": "rfc3986-uri",
+        "start": 2031
+      }
+    },
+    "rfc3986-uri:path-empty#9046b230": {
+      "children": [
+        "rfc3986-uri:path-empty#a0749f99"
+      ],
+      "kind": "repetition",
+      "name": "0(...)"
+    },
+    "rfc3986-uri:path-empty#a0749f99": {
+      "kind": "terminal",
+      "name": "<pchar>"
+    },
+    "rfc3986-uri:path-noscheme#01517d91": {
+      "children": [
+        "rfc3986-uri:path-noscheme#1c05c307",
+        "rfc3986-uri:path-noscheme#26cb9386"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:path-noscheme#06aa88f8": {
+      "children": [
+        "rfc3986-uri:path-noscheme#01517d91"
+      ],
+      "kind": "group",
+      "name": "group"
+    },
+    "rfc3986-uri:path-noscheme#1c05c307": {
+      "kind": "terminal",
+      "name": "\"/\""
+    },
+    "rfc3986-uri:path-noscheme#26cb9386": {
+      "kind": "reference",
+      "name": "segment"
+    },
+    "rfc3986-uri:path-noscheme#37d33533": {
+      "children": [
+        "rfc3986-uri:path-noscheme#fa47cfdb",
+        "rfc3986-uri:path-noscheme#becea0be"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:path-noscheme#b3146a7b": {
+      "children": [
+        "rfc3986-uri:path-noscheme#37d33533"
+      ],
+      "kind": "rule",
+      "name": "path-noscheme",
+      "span": {
+        "end": 1986,
+        "source": "rfc3986-uri",
+        "start": 1940
+      }
+    },
+    "rfc3986-uri:path-noscheme#becea0be": {
+      "children": [
+        "rfc3986-uri:path-noscheme#06aa88f8"
+      ],
+      "kind": "repetition",
+      "name": "*(...)"
+    },
+    "rfc3986-uri:path-noscheme#fa47cfdb": {
+      "kind": "reference",
+      "name": "segment-nz-nc"
+    },
+    "rfc3986-uri:path-rootless#049047c6": {
+      "children": [
+        "rfc3986-uri:path-rootless#a75f7662"
+      ],
+      "kind": "rule",
+      "name": "path-rootless",
+      "span": {
+        "end": 2030,
+        "source": "rfc3986-uri",
+        "start": 1987
+      }
+    },
+    "rfc3986-uri:path-rootless#08f47353": {
+      "children": [
+        "rfc3986-uri:path-rootless#aed05071",
+        "rfc3986-uri:path-rootless#fa5d5a4f"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:path-rootless#2a2a8ef7": {
+      "children": [
+        "rfc3986-uri:path-rootless#08f47353"
+      ],
+      "kind": "group",
+      "name": "group"
+    },
+    "rfc3986-uri:path-rootless#39939737": {
+      "kind": "reference",
+      "name": "segment-nz"
+    },
+    "rfc3986-uri:path-rootless#a75f7662": {
+      "children": [
+        "rfc3986-uri:path-rootless#39939737",
+        "rfc3986-uri:path-rootless#fbcf2fbe"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:path-rootless#aed05071": {
+      "kind": "terminal",
+      "name": "\"/\""
+    },
+    "rfc3986-uri:path-rootless#fa5d5a4f": {
+      "kind": "reference",
+      "name": "segment"
+    },
+    "rfc3986-uri:path-rootless#fbcf2fbe": {
+      "children": [
+        "rfc3986-uri:path-rootless#2a2a8ef7"
+      ],
+      "kind": "repetition",
+      "name": "*(...)"
+    },
+    "rfc3986-uri:pchar#3fe905cd": {
+      "kind": "terminal",
+      "name": "\":\""
+    },
+    "rfc3986-uri:pchar#ad825411": {
+      "kind": "terminal",
+      "name": "\"@\""
+    },
+    "rfc3986-uri:pchar#d388b54a": {
+      "kind": "reference",
+      "name": "pct-encoded"
+    },
+    "rfc3986-uri:pchar#d506d5b7": {
+      "children": [
+        "rfc3986-uri:pchar#db22e98c"
+      ],
+      "kind": "rule",
+      "name": "pchar",
+      "span": {
+        "end": 2236,
+        "source": "rfc3986-uri",
+        "start": 2171
+      }
+    },
+    "rfc3986-uri:pchar#db22e98c": {
+      "children": [
+        "rfc3986-uri:pchar#dea22690",
+        "rfc3986-uri:pchar#d388b54a",
+        "rfc3986-uri:pchar#f2b14903",
+        "rfc3986-uri:pchar#3fe905cd",
+        "rfc3986-uri:pchar#ad825411"
+      ],
+      "kind": "alternation",
+      "name": "alternation"
+    },
+    "rfc3986-uri:pchar#dea22690": {
+      "kind": "reference",
+      "name": "unreserved"
+    },
+    "rfc3986-uri:pchar#f2b14903": {
+      "kind": "reference",
+      "name": "sub-delims"
+    },
+    "rfc3986-uri:pct-encoded#383eb687": {
+      "kind": "terminal",
+      "name": "\"%\""
+    },
+    "rfc3986-uri:pct-encoded#5a0d89a2": {
+      "children": [
+        "rfc3986-uri:pct-encoded#383eb687",
+        "rfc3986-uri:pct-encoded#fc164b7b",
+        "rfc3986-uri:pct-encoded#802daad4"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:pct-encoded#5b00e532": {
+      "children": [
+        "rfc3986-uri:pct-encoded#5a0d89a2"
+      ],
+      "kind": "rule",
+      "name": "pct-encoded",
+      "span": {
+        "end": 2351,
+        "source": "rfc3986-uri",
+        "start": 2318
+      }
+    },
+    "rfc3986-uri:pct-encoded#802daad4": {
+      "kind": "reference",
+      "name": "HEXDIG"
+    },
+    "rfc3986-uri:pct-encoded#fc164b7b": {
+      "kind": "reference",
+      "name": "HEXDIG"
+    },
+    "rfc3986-uri:port#423d5e5c": {
+      "children": [
+        "rfc3986-uri:port#c94b10c5"
+      ],
+      "kind": "repetition",
+      "name": "*(...)"
+    },
+    "rfc3986-uri:port#c94b10c5": {
+      "kind": "reference",
+      "name": "DIGIT"
+    },
+    "rfc3986-uri:port#cdb4d14b": {
+      "children": [
+        "rfc3986-uri:port#423d5e5c"
+      ],
+      "kind": "rule",
+      "name": "port",
+      "span": {
+        "end": 738,
+        "source": "rfc3986-uri",
+        "start": 716
+      }
+    },
+    "rfc3986-uri:query#27655704": {
+      "kind": "reference",
+      "name": "pchar"
+    },
+    "rfc3986-uri:query#680dddb6": {
+      "children": [
+        "rfc3986-uri:query#27655704",
+        "rfc3986-uri:query#78b1a305",
+        "rfc3986-uri:query#7877c585"
+      ],
+      "kind": "alternation",
+      "name": "alternation"
+    },
+    "rfc3986-uri:query#73ef8dc9": {
+      "children": [
+        "rfc3986-uri:query#680dddb6"
+      ],
+      "kind": "group",
+      "name": "group"
+    },
+    "rfc3986-uri:query#78397244": {
+      "children": [
+        "rfc3986-uri:query#73ef8dc9"
+      ],
+      "kind": "repetition",
+      "name": "*(...)"
+    },
+    "rfc3986-uri:query#7877c585": {
+      "kind": "terminal",
+      "name": "\"?\""
+    },
+    "rfc3986-uri:query#78b1a305": {
+      "kind": "terminal",
+      "name": "\"/\""
+    },
+    "rfc3986-uri:query#beefc6bd": {
+      "children": [
+        "rfc3986-uri:query#78397244"
+      ],
+      "kind": "rule",
+      "name": "query",
+      "span": {
+        "end": 2276,
+        "source": "rfc3986-uri",
+        "start": 2238
+      }
+    },
+    "rfc3986-uri:reg-name#272029db": {
+      "kind": "reference",
+      "name": "unreserved"
+    },
+    "rfc3986-uri:reg-name#93246571": {
+      "children": [
+        "rfc3986-uri:reg-name#9d008f89"
+      ],
+      "kind": "rule",
+      "name": "reg-name",
+      "span": {
+        "end": 1706,
+        "source": "rfc3986-uri",
+        "start": 1648
+      }
+    },
+    "rfc3986-uri:reg-name#9d008f89": {
+      "children": [
+        "rfc3986-uri:reg-name#fd18b108"
+      ],
+      "kind": "repetition",
+      "name": "*(...)"
+    },
+    "rfc3986-uri:reg-name#9ea5cb83": {
+      "kind": "reference",
+      "name": "pct-encoded"
+    },
+    "rfc3986-uri:reg-name#b4156442": {
+      "children": [
+        "rfc3986-uri:reg-name#272029db",
+        "rfc3986-uri:reg-name#9ea5cb83",
+        "rfc3986-uri:reg-name#e526df8e"
+      ],
+      "kind": "alternation",
+      "name": "alternation"
+    },
+    "rfc3986-uri:reg-name#e526df8e": {
+      "kind": "reference",
+      "name": "sub-delims"
+    },
+    "rfc3986-uri:reg-name#fd18b108": {
+      "children": [
+        "rfc3986-uri:reg-name#b4156442"
+      ],
+      "kind": "group",
+      "name": "group"
+    },
+    "rfc3986-uri:relative-part#0058f539": {
+      "children": [
+        "rfc3986-uri:relative-part#ef25c448"
+      ],
+      "kind": "rule",
+      "name": "relative-part",
+      "span": {
+        "end": 486,
+        "source": "rfc3986-uri",
+        "start": 356
+      }
+    },
+    "rfc3986-uri:relative-part#5efc757e": {
+      "kind": "reference",
+      "name": "path-empty"
+    },
+    "rfc3986-uri:relative-part#8b49da89": {
+      "kind": "reference",
+      "name": "path-absolute"
+    },
+    "rfc3986-uri:relative-part#8badb4cc": {
+      "kind": "terminal",
+      "name": "\"//\""
+    },
+    "rfc3986-uri:relative-part#c9353f91": {
+      "kind": "reference",
+      "name": "authority"
+    },
+    "rfc3986-uri:relative-part#cca1fb03": {
+      "kind": "reference",
+      "name": "path-noscheme"
+    },
+    "rfc3986-uri:relative-part#e076ec87": {
+      "children": [
+        "rfc3986-uri:relative-part#8badb4cc",
+        "rfc3986-uri:relative-part#c9353f91",
+        "rfc3986-uri:relative-part#f766dcd1"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:relative-part#ef25c448": {
+      "children": [
+        "rfc3986-uri:relative-part#e076ec87",
+        "rfc3986-uri:relative-part#8b49da89",
+        "rfc3986-uri:relative-part#cca1fb03",
+        "rfc3986-uri:relative-part#5efc757e"
+      ],
+      "kind": "alternation",
+      "name": "alternation"
+    },
+    "rfc3986-uri:relative-part#f766dcd1": {
+      "kind": "reference",
+      "name": "path-abempty"
+    },
+    "rfc3986-uri:relative-ref#13958a7e": {
+      "kind": "reference",
+      "name": "query"
+    },
+    "rfc3986-uri:relative-ref#51dc7553": {
+      "children": [
+        "rfc3986-uri:relative-ref#70c80f4f",
+        "rfc3986-uri:relative-ref#13958a7e"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:relative-ref#70c80f4f": {
+      "kind": "terminal",
+      "name": "\"?\""
+    },
+    "rfc3986-uri:relative-ref#72af9898": {
+      "children": [
+        "rfc3986-uri:relative-ref#51dc7553"
+      ],
+      "kind": "optional",
+      "name": "optional"
+    },
+    "rfc3986-uri:relative-ref#913dce5b": {
+      "children": [
+        "rfc3986-uri:relative-ref#944920b2"
+      ],
+      "kind": "optional",
+      "name": "optional"
+    },
+    "rfc3986-uri:relative-ref#944920b2": {
+      "children": [
+        "rfc3986-uri:relative-ref#c17c7519",
+        "rfc3986-uri:relative-ref#b615de7c"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:relative-ref#b615de7c": {
+      "kind": "reference",
+      "name": "fragment"
+    },
+    "rfc3986-uri:relative-ref#ba09c7c1": {
+      "kind": "reference",
+      "name": "relative-part"
+    },
+    "rfc3986-uri:relative-ref#c17c7519": {
+      "kind": "terminal",
+      "name": "\"#\""
+    },
+    "rfc3986-uri:relative-ref#c637cf19": {
+      "children": [
+        "rfc3986-uri:relative-ref#ff542ff2"
+      ],
+      "kind": "rule",
+      "name": "relative-ref",
+      "span": {
+        "end": 354,
+        "source": "rfc3986-uri",
+        "start": 294
+      }
+    },
+    "rfc3986-uri:relative-ref#ff542ff2": {
+      "children": [
+        "rfc3986-uri:relative-ref#ba09c7c1",
+        "rfc3986-uri:relative-ref#72af9898",
+        "rfc3986-uri:relative-ref#913dce5b"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:reserved#20927a34": {
+      "children": [
+        "rfc3986-uri:reserved#f408c937",
+        "rfc3986-uri:reserved#2bb4e402"
+      ],
+      "kind": "alternation",
+      "name": "alternation"
+    },
+    "rfc3986-uri:reserved#2bb4e402": {
+      "kind": "reference",
+      "name": "sub-delims"
+    },
+    "rfc3986-uri:reserved#f408c937": {
+      "kind": "reference",
+      "name": "gen-delims"
+    },
+    "rfc3986-uri:reserved#f89f1e25": {
+      "children": [
+        "rfc3986-uri:reserved#20927a34"
+      ],
+      "kind": "rule",
+      "name": "reserved",
+      "span": {
+        "end": 2446,
+        "source": "rfc3986-uri",
+        "start": 2407
+      }
+    },
+    "rfc3986-uri:scheme#2093cace": {
+      "kind": "reference",
+      "name": "DIGIT"
+    },
+    "rfc3986-uri:scheme#282ca63f": {
+      "children": [
+        "rfc3986-uri:scheme#983725dd",
+        "rfc3986-uri:scheme#3e0124ce"
+      ],
+      "kind": "sequence",
+      "name": "sequence"
+    },
+    "rfc3986-uri:scheme#3b729346": {
+      "children": [
+        "rfc3986-uri:scheme#282ca63f"
+      ],
+      "kind": "rule",
+      "name": "scheme",
+      "span": {
+        "end": 546,
+        "source": "rfc3986-uri",
+        "start": 488
+      }
+    },
+    "rfc3986-uri:scheme#3e0124ce": {
+      "children": [
+        "rfc3986-uri:scheme#4812a24d"
+      ],
+      "kind": "repetition",
+      "name": "*(...)"
+    },
+    "rfc3986-uri:scheme#4812a24d": {
+      "children": [
+        "rfc3986-uri:scheme#76c12692"
+      ],
+      "kind": "group",
+      "name": "group"
+    },
+    "rfc3986-uri:scheme#4962bdcd": {
+      "kind": "terminal",
+      "name": "\".\""
+    },
+    "rfc3986-uri:scheme#76c12692": {
+      "children": [
+        "rfc3986-uri:scheme#c72c0281",
+        "rfc3986-uri:scheme#2093cace",
+        "rfc3986-uri:scheme#872a533b",
+        "rfc3986-uri:scheme#856d14d5",
+        "rfc3986-uri:scheme#4962bdcd"
+      ],
+      "kind": "alternation",
+      "name": "alternation"
+    },
+    "rfc3986-uri:scheme#856d14d5": {
+      "kind": "terminal",
+      "name": "\"-\""
+    },
+    "rfc3986-uri:scheme#872a533b": {
+      "kind": "terminal",
+      "name": "\"+\""
+    },
+    "rfc3986-uri:scheme#983725dd": {
+      "kind": "reference",
+      "name": "ALPHA"
+    },
+    "rfc3986-uri:scheme#c72c0281": {
+      "kind": "reference",
+      "name": "ALPHA"
+    },
+    "rfc3986-uri:segment#6d46421e": {
+      "children": [
+        "rfc3986-uri:segment#ad197556"
+      ],
+      "kind": "repetition",
+      "name": "*(...)"
+    },
+    "rfc3986-uri:segment#73624c69": {
+      "children": [
+        "rfc3986-uri:segment#6d46421e"
+      ],
+      "kind": "rule",
+      "name": "segment",
+      "span": {
+        "end": 2079,
+        "source": "rfc3986-uri",
+        "start": 2057
+      }
+    },
+    "rfc3986-uri:segment#ad197556": {
+      "kind": "reference",
+      "name": "pchar"
+    },
+    "rfc3986-uri:segment-nz#4c4f7001": {
+      "children": [
+        "rfc3986-uri:segment-nz#8152ce01"
+      ],
+      "kind": "repetition",
+      "name": "1*(...)"
+    },
+    "rfc3986-uri:segment-nz#8152ce01": {
+      "kind": "reference",
+      "name": "pchar"
+    },
+    "rfc3986-uri:segment-nz#b6de96a6": {
+      "children": [
+        "rfc3986-uri:segment-nz#4c4f7001"
+      ],
+      "kind": "rule",
+      "name": "segment-nz",
+      "span": {
+        "end": 2103,
+        "source": "rfc3986-uri",
+        "start": 2080
+      }
+    },
+    "rfc3986-uri:segment-nz-nc#07192340": {
+      "children": [
+        "rfc3986-uri:segment-nz-nc#33c2ee61"
+      ],
+      "kind": "rule",
+      "name": "segment-nz-nc",
+      "span": {
+        "end": 2169,
+        "source": "rfc3986-uri",
+        "start": 2104
+      }
+    },
+    "rfc3986-uri:segment-nz-nc#33c2ee61": {
+      "children": [
+        "rfc3986-uri:segment-nz-nc#ffb5ce25"
+      ],
+      "kind": "repetition",
+      "name": "1*(...)"
+    },
+    "rfc3986-uri:segment-nz-nc#3be0e142": {
+      "kind": "terminal",
+      "name": "\"@\""
+    },
+    "rfc3986-uri:segment-nz-nc#445e33bc": {
+      "kind": "reference",
+      "name": "pct-encoded"
+    },
+    "rfc3986-uri:segment-nz-nc#8be8aa44": {
+      "kind": "reference",
+      "name": "unreserved"
+    },
+    "rfc3986-uri:segment-nz-nc#9a616507": {
+      "kind": "reference",
+      "name": "sub-delims"
+    },
+    "rfc3986-uri:segment-nz-nc#e5c4ac6f": {
+      "children": [
+        "rfc3986-uri:segment-nz-nc#8be8aa44",
+        "rfc3986-uri:segment-nz-nc#445e33bc",
+        "rfc3986-uri:segment-nz-nc#9a616507",
+        "rfc3986-uri:segment-nz-nc#3be0e142"
+      ],
+      "kind": "alternation",
+      "name": "alternation"
+    },
+    "rfc3986-uri:segment-nz-nc#ffb5ce25": {
+      "children": [
+        "rfc3986-uri:segment-nz-nc#e5c4ac6f"
+      ],
+      "kind": "group",
+      "name": "group"
+    },
+    "rfc3986-uri:sub-delims#05eb1c6f": {
+      "kind": "terminal",
+      "name": "\",\""
+    },
+    "rfc3986-uri:sub-delims#184fd667": {
+      "kind": "terminal",
+      "name": "\"=\""
+    },
+    "rfc3986-uri:sub-delims#21903ace": {
+      "kind": "terminal",
+      "name": "\";\""
+    },
+    "rfc3986-uri:sub-delims#3a16d993": {
+      "kind": "terminal",
+      "name": "\"+\""
+    },
+    "rfc3986-uri:sub-delims#5bf40932": {
+      "children": [
+        "rfc3986-uri:sub-delims#b5e43371"
+      ],
+      "kind": "rule",
+      "name": "sub-delims",
+      "span": {
+        "end": 2596,
+        "source": "rfc3986-uri",
+        "start": 2503
+      }
+    },
+    "rfc3986-uri:sub-delims#5bfba425": {
+      "kind": "terminal",
+      "name": "\"!\""
+    },
+    "rfc3986-uri:sub-delims#5f5b50ba": {
+      "kind": "terminal",
+      "name": "\"*\""
+    },
+    "rfc3986-uri:sub-delims#66addaef": {
+      "kind": "terminal",
+      "name": "\"'\""
+    },
+    "rfc3986-uri:sub-delims#afe23b2d": {
+      "kind": "terminal",
+      "name": "\"(\""
+    },
+    "rfc3986-uri:sub-delims#b5e43371": {
+      "children": [
+        "rfc3986-uri:sub-delims#5bfba425",
+        "rfc3986-uri:sub-delims#e1482266",
+        "rfc3986-uri:sub-delims#cfffeee8",
+        "rfc3986-uri:sub-delims#66addaef",
+        "rfc3986-uri:sub-delims#afe23b2d",
+        "rfc3986-uri:sub-delims#c3585fcc",
+        "rfc3986-uri:sub-delims#5f5b50ba",
+        "rfc3986-uri:sub-delims#3a16d993",
+        "rfc3986-uri:sub-delims#05eb1c6f",
+        "rfc3986-uri:sub-delims#21903ace",
+        "rfc3986-uri:sub-delims#184fd667"
+      ],
+      "kind": "alternation",
+      "name": "alternation"
+    },
+    "rfc3986-uri:sub-delims#c3585fcc": {
+      "kind": "terminal",
+      "name": "\")\""
+    },
+    "rfc3986-uri:sub-delims#cfffeee8": {
+      "kind": "terminal",
+      "name": "\"&\""
+    },
+    "rfc3986-uri:sub-delims#e1482266": {
+      "kind": "terminal",
+      "name": "\"$\""
+    },
+    "rfc3986-uri:unreserved#0a794953": {
+      "kind": "reference",
+      "name": "ALPHA"
+    },
+    "rfc3986-uri:unreserved#0e884de7": {
+      "kind": "terminal",
+      "name": "\"_\""
+    },
+    "rfc3986-uri:unreserved#1e6db2c8": {
+      "kind": "terminal",
+      "name": "\".\""
+    },
+    "rfc3986-uri:unreserved#2bf9948f": {
+      "kind": "terminal",
+      "name": "\"~\""
+    },
+    "rfc3986-uri:unreserved#2c31cbc0": {
+      "children": [
+        "rfc3986-uri:unreserved#0a794953",
+        "rfc3986-uri:unreserved#4f307dbc",
+        "rfc3986-uri:unreserved#fe0d0ea9",
+        "rfc3986-uri:unreserved#1e6db2c8",
+        "rfc3986-uri:unreserved#0e884de7",
+        "rfc3986-uri:unreserved#2bf9948f"
+      ],
+      "kind": "alternation",
+      "name": "alternation"
+    },
+    "rfc3986-uri:unreserved#43447c51": {
+      "children": [
+        "rfc3986-uri:unreserved#2c31cbc0"
+      ],
+      "kind": "rule",
+      "name": "unreserved",
+      "span": {
+        "end": 2406,
+        "source": "rfc3986-uri",
+        "start": 2353
+      }
+    },
+    "rfc3986-uri:unreserved#4f307dbc": {
+      "kind": "reference",
+      "name": "DIGIT"
+    },
+    "rfc3986-uri:unreserved#fe0d0ea9": {
+      "kind": "terminal",
+      "name": "\"-\""
+    },
+    "rfc3986-uri:userinfo#2038023d": {
+      "kind": "reference",
+      "name": "sub-delims"
+    },
+    "rfc3986-uri:userinfo#2bf7da71": {
+      "children": [
+        "rfc3986-uri:userinfo#81fd5d51"
+      ],
+      "kind": "rule",
+      "name": "userinfo",
+      "span": {
+        "end": 663,
+        "source": "rfc3986-uri",
+        "start": 599
+      }
+    },
+    "rfc3986-uri:userinfo#81fd5d51": {
+      "children": [
+        "rfc3986-uri:userinfo#bff63cff"
+      ],
+      "kind": "repetition",
+      "name": "*(...)"
+    },
+    "rfc3986-uri:userinfo#9d9e075d": {
+      "kind": "reference",
+      "name": "pct-encoded"
+    },
+    "rfc3986-uri:userinfo#b30828fd": {
+      "kind": "terminal",
+      "name": "\":\""
+    },
+    "rfc3986-uri:userinfo#bff63cff": {
+      "children": [
+        "rfc3986-uri:userinfo#f13af517"
+      ],
+      "kind": "group",
+      "name": "group"
+    },
+    "rfc3986-uri:userinfo#d48af27b": {
+      "kind": "reference",
+      "name": "unreserved"
+    },
+    "rfc3986-uri:userinfo#f13af517": {
+      "children": [
+        "rfc3986-uri:userinfo#d48af27b",
+        "rfc3986-uri:userinfo#9d9e075d",
+        "rfc3986-uri:userinfo#2038023d",
+        "rfc3986-uri:userinfo#b30828fd"
+      ],
+      "kind": "alternation",
+      "name": "alternation"
+    }
+  },
+  "root": "rfc3986-uri:URI#4c4da3ed",
+  "schema_version": 1,
+  "source": {
+    "rfc": "RFC 3986",
+    "section": "Appendix A",
+    "uri": "https://www.rfc-editor.org/rfc/rfc3986"
+  }
+}
