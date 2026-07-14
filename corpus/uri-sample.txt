@@ -1,0 +1,18 @@
+# Sample URI corpus for the telemetry engine (Task 2.3).
+# Representative of Common Crawl-style URL lists; deliberately exercises a range
+# of grammar features (authority, userinfo, ports, IPv4/IPv6 literals, queries,
+# fragments, percent-encoding, and non-hierarchical schemes).
+http://example.com/
+https://user@host.example:8443/a/b?q=1#frag
+http://192.0.2.1/
+https://[2001:db8::1]/path
+ftp://ftp.example.com/pub/file.txt
+urn:isbn:0451450523
+mailto:person@example.com
+http://example.com/%2e%2e/etc/passwd
+https://example.org/search?q=hello+world&lang=en
+http://example.net/a/b/c/d/e
+https://sub.domain.example.com/deep/path/segment
+http://example.com:80/
+tel:+1-816-555-1212
+https://example.com/#only-fragment
