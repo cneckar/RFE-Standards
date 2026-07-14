@@ -68,9 +68,23 @@ cross-compilation matrix that builds the Rust workspace for Linux/macOS/Windows 
 ## Documents
 
 - [`docs/PLAN.md`](docs/PLAN.md) — the architectural source of truth. Phases are Epics; Tasks are tickets.
-- [`docs/TICKETS.md`](docs/TICKETS.md) — the filable ticket breakdown with dependencies.
+- [`docs/TICKETS.md`](docs/TICKETS.md) — the ticket breakdown with dependencies.
 - [`docs/adr/0001-technology-stack.md`](docs/adr/0001-technology-stack.md) — stack decision.
+- [`docs/telemetry.md`](docs/telemetry.md) — corpus → hits pipeline (URI text + X.509 DER).
+- [`docs/overrides.md`](docs/overrides.md) — the Criticality Override Registry.
+- [`docs/rfe.md`](docs/rfe.md) — the submit → re-run → auto-PR RFE loop.
 
 ## Status
 
-Scaffolding complete (T0.1). Next: T0.2 — shared artifact schemas.
+**All phases complete.** The end-to-end pipeline runs:
+
+| Phase | What ships |
+| --- | --- |
+| 0 — Foundations | Monorepo, CI + cross-compile matrix, frozen JSON artifact contracts |
+| 1 — Grammar → AST | ABNF (RFC 3986) & ASN.1 (RFC 5280) front-ends → node-keyed ASTs |
+| 2 — Telemetry | Instrumented recognizer + DER walker; URI (Common Crawl) & X.509 (CT) ingestors → `hits.json`; override registry |
+| 3 — Pruner | Usage-threshold pruning (+ overrides) → `pruned.json` → minified, valid ABNF/ASN.1 |
+| 4 — Reference impls | Native `mvs-validate` parsers accepting exactly the MVS, with strict `ERR_MVS_*` failure states |
+| 5 — RFE | Submission webhook → re-run vs full AST → auto-`overrides.yaml` PR when the data clears the threshold |
+
+Run `cd core && cargo test --all` and `pytest` for the full suite (Rust + Python).
