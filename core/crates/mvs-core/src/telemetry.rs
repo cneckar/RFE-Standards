@@ -30,6 +30,10 @@ pub struct ParseResult {
     pub consumed: usize,
     /// AST node ids traversed on the accepting path (empty if unmatched).
     pub visited: Vec<NodeId>,
+    /// Set when matching was abandoned because the recursion-depth bound was hit
+    /// (see [`Grammar::parse_bounded`]); distinguishes a bounds failure from a
+    /// plain non-match.
+    pub depth_exceeded: bool,
 }
 
 /// Errors that can occur while compiling an [`Ast`] into a [`Grammar`].
@@ -202,10 +206,21 @@ impl Grammar {
 
     /// Match `input` against the grammar, reporting the traversed node ids.
     pub fn parse(&self, input: &[u8]) -> ParseResult {
+        self.parse_bounded(input, usize::MAX)
+    }
+
+    /// Like [`Grammar::parse`], but abandon matching once the recursion depth
+    /// exceeds `max_depth`. Because the recognizer descends one frame per matched
+    /// element (including each repetition), this bounds both grammar nesting and
+    /// runaway repetition, preventing stack exhaustion on adversarial input.
+    pub fn parse_bounded(&self, input: &[u8], max_depth: usize) -> ParseResult {
         let mut m = Matcher {
             grammar: self,
             input,
             visited: Vec::new(),
+            depth: 0,
+            max_depth,
+            depth_exceeded: false,
         };
         let matched = m.m(self.root.as_str(), 0, &Cont::Done);
         if matched {
@@ -214,12 +229,14 @@ impl Grammar {
                 matched: true,
                 consumed: input.len(),
                 visited,
+                depth_exceeded: false,
             }
         } else {
             ParseResult {
                 matched: false,
                 consumed: 0,
                 visited: Vec::new(),
+                depth_exceeded: m.depth_exceeded,
             }
         }
     }
@@ -229,6 +246,9 @@ struct Matcher<'g> {
     grammar: &'g Grammar,
     input: &'g [u8],
     visited: Vec<&'g str>,
+    depth: usize,
+    max_depth: usize,
+    depth_exceeded: bool,
 }
 
 impl<'g> Matcher<'g> {
@@ -236,6 +256,11 @@ impl<'g> Matcher<'g> {
     /// accepted subtree) is appended to `visited`; on failure `visited` is rolled
     /// back to its prior length.
     fn m(&mut self, node: &'g str, pos: usize, cont: &Cont<'g, '_>) -> bool {
+        if self.depth >= self.max_depth {
+            self.depth_exceeded = true;
+            return false;
+        }
+        self.depth += 1;
         let compiled = self.grammar.nodes.get(node).expect("node id exists");
         let mark = self.visited.len();
         let ok = match compiled {
@@ -275,6 +300,7 @@ impl<'g> Matcher<'g> {
             }
             Compiled::Rep(rep) => self.rep_step(rep, 0, pos, cont),
         };
+        self.depth -= 1;
         if ok {
             self.visited.push(node);
             true
