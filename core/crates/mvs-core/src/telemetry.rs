@@ -407,8 +407,15 @@ impl HitAggregator {
 
     /// Fold one already-computed [`ParseResult`] into the tally.
     pub fn record(&mut self, result: &ParseResult) {
-        if result.matched {
-            let unique: BTreeSet<&str> = result.visited.iter().map(String::as_str).collect();
+        self.record_visited(result.matched, &result.visited);
+    }
+
+    /// Fold a `(matched, visited)` sample into the tally. Each input counts once
+    /// toward `total_samples`; a node is credited at most once per matched input.
+    /// This is the grammar-agnostic entry point (text or DER).
+    pub fn record_visited(&mut self, matched: bool, visited: &[NodeId]) {
+        if matched {
+            let unique: BTreeSet<&str> = visited.iter().map(String::as_str).collect();
             for node in unique {
                 *self.counts.entry(node.to_string()).or_insert(0) += 1;
             }

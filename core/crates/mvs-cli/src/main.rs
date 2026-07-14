@@ -16,7 +16,7 @@ use std::fs;
 use std::io::{Read, Write};
 use std::process::ExitCode;
 
-use mvs_core::{Grammar, HitAggregator};
+use mvs_core::{DerWalker, Grammar, HitAggregator};
 use mvs_schema::Ast;
 
 fn main() -> ExitCode {
@@ -35,32 +35,38 @@ fn main() -> ExitCode {
 
 struct Options {
     ast: String,
-    corpus: String,
+    corpus: Option<String>,
+    der_dir: Option<String>,
     out: String,
 }
 
 fn parse_args(args: &[String]) -> Result<Options, String> {
     let mut ast = None;
     let mut corpus = None;
+    let mut der_dir = None;
     let mut out = None;
     let mut it = args.iter();
     while let Some(flag) = it.next() {
         match flag.as_str() {
             "--ast" => ast = Some(next_value(&mut it, "--ast")?),
             "--corpus" => corpus = Some(next_value(&mut it, "--corpus")?),
+            "--der-dir" => der_dir = Some(next_value(&mut it, "--der-dir")?),
             "--out" => out = Some(next_value(&mut it, "--out")?),
             "-h" | "--help" => {
-                return Err(
-                    "usage: mvs-telemetry --ast <path> --corpus <file|-> --out <file|->"
-                        .to_string(),
-                );
+                return Err("usage: mvs-telemetry --ast <path> (--corpus <file|-> | \
+                            --der-dir <dir>) --out <file|->"
+                    .to_string());
             }
             other => return Err(format!("unknown argument {other}")),
         }
     }
+    if corpus.is_some() == der_dir.is_some() {
+        return Err("provide exactly one of --corpus or --der-dir".to_string());
+    }
     Ok(Options {
         ast: ast.ok_or("missing --ast")?,
-        corpus: corpus.ok_or("missing --corpus")?,
+        corpus,
+        der_dir,
         out: out.ok_or("missing --out")?,
     })
 }
@@ -98,21 +104,34 @@ fn run(args: &[String]) -> Result<String, String> {
 
     let ast_text = read_source(&opts.ast)?;
     let ast: Ast = serde_json::from_str(&ast_text).map_err(|e| format!("parsing AST: {e}"))?;
-    let grammar = Grammar::compile(&ast).map_err(|e| format!("compiling grammar: {e}"))?;
 
-    let corpus = read_source(&opts.corpus)?;
     let mut agg = HitAggregator::new();
     let mut matched = 0u64;
-    for line in corpus.lines() {
-        let input = line.trim();
-        if input.is_empty() || input.starts_with('#') {
-            continue;
+
+    if let Some(dir) = &opts.der_dir {
+        let walker = DerWalker::new(&ast);
+        for path in der_files(dir)? {
+            let bytes = fs::read(&path).map_err(|e| format!("reading {}: {e}", path.display()))?;
+            let result = walker.walk(&bytes);
+            if result.matched {
+                matched += 1;
+            }
+            agg.record_visited(result.matched, &result.visited);
         }
-        let result = grammar.parse(input.as_bytes());
-        if result.matched {
-            matched += 1;
+    } else {
+        let grammar = Grammar::compile(&ast).map_err(|e| format!("compiling grammar: {e}"))?;
+        let corpus = read_source(opts.corpus.as_deref().unwrap_or("-"))?;
+        for line in corpus.lines() {
+            let input = line.trim();
+            if input.is_empty() || input.starts_with('#') {
+                continue;
+            }
+            let result = grammar.parse(input.as_bytes());
+            if result.matched {
+                matched += 1;
+            }
+            agg.record(&result);
         }
-        agg.record(&result);
     }
 
     let total = agg.total_samples();
@@ -125,4 +144,15 @@ fn run(args: &[String]) -> Result<String, String> {
         ast.grammar,
         hits.hits.len()
     ))
+}
+
+/// Sorted list of `*.der` files in a directory (sorted for reproducible output).
+fn der_files(dir: &str) -> Result<Vec<std::path::PathBuf>, String> {
+    let mut paths: Vec<_> = fs::read_dir(dir)
+        .map_err(|e| format!("reading dir {dir}: {e}"))?
+        .filter_map(|entry| entry.ok().map(|e| e.path()))
+        .filter(|p| p.extension().is_some_and(|ext| ext == "der"))
+        .collect();
+    paths.sort();
+    Ok(paths)
 }

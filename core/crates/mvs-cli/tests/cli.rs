@@ -26,6 +26,40 @@ fn run_cli(out: &PathBuf) -> Hits {
     serde_json::from_str(&text).expect("parse hits output")
 }
 
+fn run_cli_der(out: &PathBuf) -> Hits {
+    let status = Command::new(env!("CARGO_BIN_EXE_mvs-telemetry"))
+        .arg("--ast")
+        .arg(repo_path("artifacts/rfc5280-x509.ast.json"))
+        .arg("--der-dir")
+        .arg(repo_path("corpus/certs"))
+        .arg("--out")
+        .arg(out)
+        .status()
+        .expect("run mvs-telemetry (der)");
+    assert!(status.success(), "cli exited with failure");
+    let text = std::fs::read_to_string(out).expect("read hits output");
+    serde_json::from_str(&text).expect("parse hits output")
+}
+
+#[test]
+fn emits_valid_hits_over_der_certs() {
+    let out = std::env::temp_dir().join(format!("mvs_der_{}.json", std::process::id()));
+    let hits = run_cli_der(&out);
+    assert_eq!(hits.grammar, "rfc5280-x509");
+    assert_eq!(hits.total_samples, 1);
+    assert!(!hits.hits.is_empty());
+    assert!(hits.hits.values().all(|&c| c <= hits.total_samples));
+
+    // The committed X.509 hits artifact must be reproducible from the fixture.
+    let committed_text = std::fs::read_to_string(repo_path("artifacts/rfc5280-x509.hits.json"))
+        .expect("read committed x509 hits");
+    let committed: Hits = serde_json::from_str(&committed_text).expect("parse committed x509 hits");
+    assert_eq!(committed.hits, hits.hits);
+    assert_eq!(committed.total_samples, hits.total_samples);
+
+    let _ = std::fs::remove_file(&out);
+}
+
 #[test]
 fn emits_valid_hits_over_sample_corpus() {
     let out = std::env::temp_dir().join(format!("mvs_hits_{}.json", std::process::id()));

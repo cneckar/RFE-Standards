@@ -5,8 +5,10 @@
 //! This root module defines the foundational node-identity type that the
 //! Python↔Rust artifact contract (Task 0.2) is built around.
 
+pub mod der;
 pub mod telemetry;
 
+pub use der::{DerResult, DerWalker};
 pub use telemetry::{CompileError, Grammar, HitAggregator, ParseResult};
 
 /// Stable identifier for a single grammar/schema node in an AST.
