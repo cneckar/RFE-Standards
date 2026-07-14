@@ -1,0 +1,13 @@
+[package]
+name = "mvs-refparse"
+description = "Native, cross-platform reference parsers generated from the minified MVS (Phase 4)."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+mvs-core = { path = "../mvs-core" }
