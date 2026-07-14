@@ -1,0 +1,28 @@
+{
+  "grammar": "rfc5280-x509",
+  "pruned": [
+    "rfc5280-x509:DirectoryString#01f16091",
+    "rfc5280-x509:DirectoryString#55ca9dec",
+    "rfc5280-x509:DirectoryString#a14183e7",
+    "rfc5280-x509:DirectoryString#b4e9eebe",
+    "rfc5280-x509:DirectoryString#d4cde427",
+    "rfc5280-x509:DirectoryString#d512fc94",
+    "rfc5280-x509:DirectoryString#ee8f0b4f",
+    "rfc5280-x509:DirectoryString#fdc5e02d",
+    "rfc5280-x509:TBSCertificate#33c0794a",
+    "rfc5280-x509:TBSCertificate#5088cbb8",
+    "rfc5280-x509:TBSCertificate#52255ec1",
+    "rfc5280-x509:TBSCertificate#5ea6c411",
+    "rfc5280-x509:TBSCertificate#837c048c",
+    "rfc5280-x509:TBSCertificate#8f0f426e",
+    "rfc5280-x509:TBSCertificate#dfe14103",
+    "rfc5280-x509:TBSCertificate#ed7eb4a6",
+    "rfc5280-x509:Time#30844b13",
+    "rfc5280-x509:Time#eb0b5f15",
+    "rfc5280-x509:UniqueIdentifier#5c8dadf3",
+    "rfc5280-x509:UniqueIdentifier#a198d3af"
+  ],
+  "schema_version": 1,
+  "surviving_grammar": "mvs/rfc5280-x509.mvs.asn1",
+  "threshold": 0.001
+}
