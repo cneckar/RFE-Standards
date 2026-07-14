@@ -58,6 +58,8 @@ name = "mvs-refparse"
 version = "0.0.0"
 dependencies = [
  "mvs-core",
+ "mvs-schema",
+ "serde_json",
 ]
 
 [[package]]
