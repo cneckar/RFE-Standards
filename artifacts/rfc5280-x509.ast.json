@@ -1,0 +1,795 @@
+{
+  "grammar": "rfc5280-x509",
+  "nodes": {
+    "rfc5280-x509:AlgorithmIdentifier#06ae8df8": {
+      "children": [
+        "rfc5280-x509:AlgorithmIdentifier#72e13630"
+      ],
+      "kind": "named-type",
+      "name": "parameters"
+    },
+    "rfc5280-x509:AlgorithmIdentifier#3a3792d4": {
+      "children": [
+        "rfc5280-x509:AlgorithmIdentifier#e88e3a7f"
+      ],
+      "kind": "rule",
+      "name": "AlgorithmIdentifier",
+      "span": {
+        "end": 969,
+        "source": "rfc5280-x509",
+        "start": 824
+      }
+    },
+    "rfc5280-x509:AlgorithmIdentifier#72e13630": {
+      "children": [
+        "rfc5280-x509:AlgorithmIdentifier#fcb3c20b"
+      ],
+      "kind": "optional",
+      "name": "OPTIONAL"
+    },
+    "rfc5280-x509:AlgorithmIdentifier#7811cb18": {
+      "kind": "terminal",
+      "name": "OBJECT IDENTIFIER"
+    },
+    "rfc5280-x509:AlgorithmIdentifier#c05a33c5": {
+      "children": [
+        "rfc5280-x509:AlgorithmIdentifier#7811cb18"
+      ],
+      "kind": "named-type",
+      "name": "algorithm"
+    },
+    "rfc5280-x509:AlgorithmIdentifier#e88e3a7f": {
+      "children": [
+        "rfc5280-x509:AlgorithmIdentifier#c05a33c5",
+        "rfc5280-x509:AlgorithmIdentifier#06ae8df8"
+      ],
+      "kind": "sequence",
+      "name": "SEQUENCE"
+    },
+    "rfc5280-x509:AlgorithmIdentifier#fcb3c20b": {
+      "kind": "terminal",
+      "name": "ANY"
+    },
+    "rfc5280-x509:AttributeType#9449df54": {
+      "kind": "terminal",
+      "name": "OBJECT IDENTIFIER"
+    },
+    "rfc5280-x509:AttributeType#dda49c08": {
+      "children": [
+        "rfc5280-x509:AttributeType#9449df54"
+      ],
+      "kind": "rule",
+      "name": "AttributeType",
+      "span": {
+        "end": 1280,
+        "source": "rfc5280-x509",
+        "start": 1243
+      }
+    },
+    "rfc5280-x509:AttributeTypeAndValue#4cd33458": {
+      "children": [
+        "rfc5280-x509:AttributeTypeAndValue#6c9372ba"
+      ],
+      "kind": "rule",
+      "name": "AttributeTypeAndValue",
+      "span": {
+        "end": 1241,
+        "source": "rfc5280-x509",
+        "start": 1145
+      }
+    },
+    "rfc5280-x509:AttributeTypeAndValue#6c30cf16": {
+      "kind": "reference",
+      "name": "AttributeType"
+    },
+    "rfc5280-x509:AttributeTypeAndValue#6c9372ba": {
+      "children": [
+        "rfc5280-x509:AttributeTypeAndValue#be341a7b",
+        "rfc5280-x509:AttributeTypeAndValue#916db0b3"
+      ],
+      "kind": "sequence",
+      "name": "SEQUENCE"
+    },
+    "rfc5280-x509:AttributeTypeAndValue#916db0b3": {
+      "children": [
+        "rfc5280-x509:AttributeTypeAndValue#9e1ea754"
+      ],
+      "kind": "named-type",
+      "name": "value"
+    },
+    "rfc5280-x509:AttributeTypeAndValue#9e1ea754": {
+      "kind": "reference",
+      "name": "AttributeValue"
+    },
+    "rfc5280-x509:AttributeTypeAndValue#be341a7b": {
+      "children": [
+        "rfc5280-x509:AttributeTypeAndValue#6c30cf16"
+      ],
+      "kind": "named-type",
+      "name": "type"
+    },
+    "rfc5280-x509:AttributeValue#875a1ad1": {
+      "kind": "reference",
+      "name": "DirectoryString"
+    },
+    "rfc5280-x509:AttributeValue#f6e6227e": {
+      "children": [
+        "rfc5280-x509:AttributeValue#875a1ad1"
+      ],
+      "kind": "rule",
+      "name": "AttributeValue",
+      "span": {
+        "end": 1318,
+        "source": "rfc5280-x509",
+        "start": 1282
+      }
+    },
+    "rfc5280-x509:Certificate#411e9457": {
+      "children": [
+        "rfc5280-x509:Certificate#62edc556",
+        "rfc5280-x509:Certificate#ae0172ed",
+        "rfc5280-x509:Certificate#bc362a5b"
+      ],
+      "kind": "sequence",
+      "name": "SEQUENCE"
+    },
+    "rfc5280-x509:Certificate#49f9675f": {
+      "children": [
+        "rfc5280-x509:Certificate#411e9457"
+      ],
+      "kind": "rule",
+      "name": "Certificate",
+      "span": {
+        "end": 216,
+        "source": "rfc5280-x509",
+        "start": 58
+      }
+    },
+    "rfc5280-x509:Certificate#62edc556": {
+      "children": [
+        "rfc5280-x509:Certificate#b05c5470"
+      ],
+      "kind": "named-type",
+      "name": "tbsCertificate"
+    },
+    "rfc5280-x509:Certificate#89308421": {
+      "kind": "reference",
+      "name": "AlgorithmIdentifier"
+    },
+    "rfc5280-x509:Certificate#ae0172ed": {
+      "children": [
+        "rfc5280-x509:Certificate#89308421"
+      ],
+      "kind": "named-type",
+      "name": "signatureAlgorithm"
+    },
+    "rfc5280-x509:Certificate#b05c5470": {
+      "kind": "reference",
+      "name": "TBSCertificate"
+    },
+    "rfc5280-x509:Certificate#bc362a5b": {
+      "children": [
+        "rfc5280-x509:Certificate#fe0cc5c5"
+      ],
+      "kind": "named-type",
+      "name": "signatureValue"
+    },
+    "rfc5280-x509:Certificate#fe0cc5c5": {
+      "kind": "terminal",
+      "name": "BIT STRING"
+    },
+    "rfc5280-x509:CertificateSerialNumber#4fb91908": {
+      "children": [
+        "rfc5280-x509:CertificateSerialNumber#8e757afb"
+      ],
+      "kind": "rule",
+      "name": "CertificateSerialNumber",
+      "span": {
+        "end": 822,
+        "source": "rfc5280-x509",
+        "start": 785
+      }
+    },
+    "rfc5280-x509:CertificateSerialNumber#8e757afb": {
+      "kind": "terminal",
+      "name": "INTEGER"
+    },
+    "rfc5280-x509:DirectoryString#01f16091": {
+      "children": [
+        "rfc5280-x509:DirectoryString#d512fc94"
+      ],
+      "kind": "named-type",
+      "name": "bmpString"
+    },
+    "rfc5280-x509:DirectoryString#1fa99e34": {
+      "children": [
+        "rfc5280-x509:DirectoryString#752dbc67"
+      ],
+      "kind": "rule",
+      "name": "DirectoryString",
+      "span": {
+        "end": 1535,
+        "source": "rfc5280-x509",
+        "start": 1320
+      }
+    },
+    "rfc5280-x509:DirectoryString#55ca9dec": {
+      "children": [
+        "rfc5280-x509:DirectoryString#a14183e7"
+      ],
+      "kind": "named-type",
+      "name": "universalString"
+    },
+    "rfc5280-x509:DirectoryString#752dbc67": {
+      "children": [
+        "rfc5280-x509:DirectoryString#fdc5e02d",
+        "rfc5280-x509:DirectoryString#b4e9eebe",
+        "rfc5280-x509:DirectoryString#55ca9dec",
+        "rfc5280-x509:DirectoryString#efa12921",
+        "rfc5280-x509:DirectoryString#01f16091"
+      ],
+      "kind": "alternation",
+      "name": "CHOICE"
+    },
+    "rfc5280-x509:DirectoryString#a14183e7": {
+      "kind": "string-type",
+      "name": "UniversalString"
+    },
+    "rfc5280-x509:DirectoryString#b4e9eebe": {
+      "children": [
+        "rfc5280-x509:DirectoryString#d4cde427"
+      ],
+      "kind": "named-type",
+      "name": "printableString"
+    },
+    "rfc5280-x509:DirectoryString#d4cde427": {
+      "kind": "string-type",
+      "name": "PrintableString"
+    },
+    "rfc5280-x509:DirectoryString#d512fc94": {
+      "kind": "string-type",
+      "name": "BMPString"
+    },
+    "rfc5280-x509:DirectoryString#d55a7eca": {
+      "kind": "string-type",
+      "name": "UTF8String"
+    },
+    "rfc5280-x509:DirectoryString#ee8f0b4f": {
+      "kind": "string-type",
+      "name": "TeletexString"
+    },
+    "rfc5280-x509:DirectoryString#efa12921": {
+      "children": [
+        "rfc5280-x509:DirectoryString#d55a7eca"
+      ],
+      "kind": "named-type",
+      "name": "utf8String"
+    },
+    "rfc5280-x509:DirectoryString#fdc5e02d": {
+      "children": [
+        "rfc5280-x509:DirectoryString#ee8f0b4f"
+      ],
+      "kind": "named-type",
+      "name": "teletexString"
+    },
+    "rfc5280-x509:Extension#2809b3dc": {
+      "children": [
+        "rfc5280-x509:Extension#5d69ce97"
+      ],
+      "kind": "named-type",
+      "name": "extnValue"
+    },
+    "rfc5280-x509:Extension#5d69ce97": {
+      "kind": "terminal",
+      "name": "OCTET STRING"
+    },
+    "rfc5280-x509:Extension#615a0530": {
+      "children": [
+        "rfc5280-x509:Extension#6856da06"
+      ],
+      "kind": "rule",
+      "name": "Extension",
+      "span": {
+        "end": 2026,
+        "source": "rfc5280-x509",
+        "start": 1893
+      }
+    },
+    "rfc5280-x509:Extension#6856da06": {
+      "children": [
+        "rfc5280-x509:Extension#ab701233",
+        "rfc5280-x509:Extension#d51aa96a",
+        "rfc5280-x509:Extension#2809b3dc"
+      ],
+      "kind": "sequence",
+      "name": "SEQUENCE"
+    },
+    "rfc5280-x509:Extension#ab701233": {
+      "children": [
+        "rfc5280-x509:Extension#e4e3bb85"
+      ],
+      "kind": "named-type",
+      "name": "extnID"
+    },
+    "rfc5280-x509:Extension#b12c40a2": {
+      "children": [
+        "rfc5280-x509:Extension#d96a2622"
+      ],
+      "kind": "optional",
+      "name": "DEFAULT"
+    },
+    "rfc5280-x509:Extension#d51aa96a": {
+      "children": [
+        "rfc5280-x509:Extension#b12c40a2"
+      ],
+      "kind": "named-type",
+      "name": "critical"
+    },
+    "rfc5280-x509:Extension#d96a2622": {
+      "kind": "terminal",
+      "name": "BOOLEAN"
+    },
+    "rfc5280-x509:Extension#e4e3bb85": {
+      "kind": "terminal",
+      "name": "OBJECT IDENTIFIER"
+    },
+    "rfc5280-x509:Extensions#0d96282d": {
+      "children": [
+        "rfc5280-x509:Extensions#68267b18"
+      ],
+      "kind": "repetition",
+      "name": "SEQUENCE OF"
+    },
+    "rfc5280-x509:Extensions#4eae8222": {
+      "children": [
+        "rfc5280-x509:Extensions#0d96282d"
+      ],
+      "kind": "rule",
+      "name": "Extensions",
+      "span": {
+        "end": 1891,
+        "source": "rfc5280-x509",
+        "start": 1853
+      }
+    },
+    "rfc5280-x509:Extensions#68267b18": {
+      "kind": "reference",
+      "name": "Extension"
+    },
+    "rfc5280-x509:Name#2c01aff4": {
+      "children": [
+        "rfc5280-x509:Name#edd993ec"
+      ],
+      "kind": "rule",
+      "name": "Name",
+      "span": {
+        "end": 1024,
+        "source": "rfc5280-x509",
+        "start": 971
+      }
+    },
+    "rfc5280-x509:Name#d9debf60": {
+      "children": [
+        "rfc5280-x509:Name#ec9765ee"
+      ],
+      "kind": "named-type",
+      "name": "rdnSequence"
+    },
+    "rfc5280-x509:Name#ec9765ee": {
+      "kind": "reference",
+      "name": "RDNSequence"
+    },
+    "rfc5280-x509:Name#edd993ec": {
+      "children": [
+        "rfc5280-x509:Name#d9debf60"
+      ],
+      "kind": "alternation",
+      "name": "CHOICE"
+    },
+    "rfc5280-x509:RDNSequence#50c2eb75": {
+      "children": [
+        "rfc5280-x509:RDNSequence#62620965"
+      ],
+      "kind": "rule",
+      "name": "RDNSequence",
+      "span": {
+        "end": 1081,
+        "source": "rfc5280-x509",
+        "start": 1026
+      }
+    },
+    "rfc5280-x509:RDNSequence#62620965": {
+      "children": [
+        "rfc5280-x509:RDNSequence#aae87424"
+      ],
+      "kind": "repetition",
+      "name": "SEQUENCE OF"
+    },
+    "rfc5280-x509:RDNSequence#aae87424": {
+      "kind": "reference",
+      "name": "RelativeDistinguishedName"
+    },
+    "rfc5280-x509:RelativeDistinguishedName#14dfad6b": {
+      "children": [
+        "rfc5280-x509:RelativeDistinguishedName#e53ba801"
+      ],
+      "kind": "repetition",
+      "name": "SET OF"
+    },
+    "rfc5280-x509:RelativeDistinguishedName#91c10a68": {
+      "children": [
+        "rfc5280-x509:RelativeDistinguishedName#14dfad6b"
+      ],
+      "kind": "rule",
+      "name": "RelativeDistinguishedName",
+      "span": {
+        "end": 1143,
+        "source": "rfc5280-x509",
+        "start": 1083
+      }
+    },
+    "rfc5280-x509:RelativeDistinguishedName#e53ba801": {
+      "kind": "reference",
+      "name": "AttributeTypeAndValue"
+    },
+    "rfc5280-x509:SubjectPublicKeyInfo#00bea8d6": {
+      "children": [
+        "rfc5280-x509:SubjectPublicKeyInfo#68412ab8"
+      ],
+      "kind": "named-type",
+      "name": "algorithm"
+    },
+    "rfc5280-x509:SubjectPublicKeyInfo#3063e642": {
+      "children": [
+        "rfc5280-x509:SubjectPublicKeyInfo#7940eec9"
+      ],
+      "kind": "rule",
+      "name": "SubjectPublicKeyInfo",
+      "span": {
+        "end": 1851,
+        "source": "rfc5280-x509",
+        "start": 1732
+      }
+    },
+    "rfc5280-x509:SubjectPublicKeyInfo#631408cc": {
+      "kind": "terminal",
+      "name": "BIT STRING"
+    },
+    "rfc5280-x509:SubjectPublicKeyInfo#68412ab8": {
+      "kind": "reference",
+      "name": "AlgorithmIdentifier"
+    },
+    "rfc5280-x509:SubjectPublicKeyInfo#7940eec9": {
+      "children": [
+        "rfc5280-x509:SubjectPublicKeyInfo#00bea8d6",
+        "rfc5280-x509:SubjectPublicKeyInfo#c7f2bd78"
+      ],
+      "kind": "sequence",
+      "name": "SEQUENCE"
+    },
+    "rfc5280-x509:SubjectPublicKeyInfo#c7f2bd78": {
+      "children": [
+        "rfc5280-x509:SubjectPublicKeyInfo#631408cc"
+      ],
+      "kind": "named-type",
+      "name": "subjectPublicKey"
+    },
+    "rfc5280-x509:TBSCertificate#1dea0a4b": {
+      "children": [
+        "rfc5280-x509:TBSCertificate#4efe880e"
+      ],
+      "kind": "named-type",
+      "name": "validity"
+    },
+    "rfc5280-x509:TBSCertificate#2122b722": {
+      "children": [
+        "rfc5280-x509:TBSCertificate#46dd1e82"
+      ],
+      "kind": "named-type",
+      "name": "subject"
+    },
+    "rfc5280-x509:TBSCertificate#24aaec51": {
+      "children": [
+        "rfc5280-x509:TBSCertificate#7349ce04"
+      ],
+      "kind": "optional",
+      "name": "OPTIONAL"
+    },
+    "rfc5280-x509:TBSCertificate#2f51cb32": {
+      "kind": "reference",
+      "name": "Name"
+    },
+    "rfc5280-x509:TBSCertificate#33c0794a": {
+      "children": [
+        "rfc5280-x509:TBSCertificate#837c048c"
+      ],
+      "kind": "tag",
+      "name": "[2] IMPLICIT"
+    },
+    "rfc5280-x509:TBSCertificate#42627204": {
+      "children": [
+        "rfc5280-x509:TBSCertificate#8c269598"
+      ],
+      "kind": "named-type",
+      "name": "subjectPublicKeyInfo"
+    },
+    "rfc5280-x509:TBSCertificate#46dd1e82": {
+      "kind": "reference",
+      "name": "Name"
+    },
+    "rfc5280-x509:TBSCertificate#4efe880e": {
+      "kind": "reference",
+      "name": "Validity"
+    },
+    "rfc5280-x509:TBSCertificate#5088cbb8": {
+      "children": [
+        "rfc5280-x509:TBSCertificate#ed7eb4a6"
+      ],
+      "kind": "optional",
+      "name": "OPTIONAL"
+    },
+    "rfc5280-x509:TBSCertificate#52255ec1": {
+      "children": [
+        "rfc5280-x509:TBSCertificate#33c0794a"
+      ],
+      "kind": "optional",
+      "name": "OPTIONAL"
+    },
+    "rfc5280-x509:TBSCertificate#5db58754": {
+      "children": [
+        "rfc5280-x509:TBSCertificate#24aaec51"
+      ],
+      "kind": "named-type",
+      "name": "extensions"
+    },
+    "rfc5280-x509:TBSCertificate#5ea6c411": {
+      "children": [
+        "rfc5280-x509:TBSCertificate#5088cbb8"
+      ],
+      "kind": "named-type",
+      "name": "issuerUniqueID"
+    },
+    "rfc5280-x509:TBSCertificate#6828bd8b": {
+      "kind": "reference",
+      "name": "CertificateSerialNumber"
+    },
+    "rfc5280-x509:TBSCertificate#7349ce04": {
+      "children": [
+        "rfc5280-x509:TBSCertificate#7a48a7d5"
+      ],
+      "kind": "tag",
+      "name": "[3] EXPLICIT"
+    },
+    "rfc5280-x509:TBSCertificate#7a48a7d5": {
+      "kind": "reference",
+      "name": "Extensions"
+    },
+    "rfc5280-x509:TBSCertificate#80b6dc2a": {
+      "kind": "reference",
+      "name": "AlgorithmIdentifier"
+    },
+    "rfc5280-x509:TBSCertificate#82375b9a": {
+      "children": [
+        "rfc5280-x509:TBSCertificate#bd4ccf0c"
+      ],
+      "kind": "optional",
+      "name": "DEFAULT"
+    },
+    "rfc5280-x509:TBSCertificate#837c048c": {
+      "kind": "reference",
+      "name": "UniqueIdentifier"
+    },
+    "rfc5280-x509:TBSCertificate#8c269598": {
+      "kind": "reference",
+      "name": "SubjectPublicKeyInfo"
+    },
+    "rfc5280-x509:TBSCertificate#8f0f426e": {
+      "children": [
+        "rfc5280-x509:TBSCertificate#52255ec1"
+      ],
+      "kind": "named-type",
+      "name": "subjectUniqueID"
+    },
+    "rfc5280-x509:TBSCertificate#9420d091": {
+      "children": [
+        "rfc5280-x509:TBSCertificate#d51f69e3"
+      ],
+      "kind": "rule",
+      "name": "TBSCertificate",
+      "span": {
+        "end": 733,
+        "source": "rfc5280-x509",
+        "start": 218
+      }
+    },
+    "rfc5280-x509:TBSCertificate#943e3676": {
+      "kind": "reference",
+      "name": "Version"
+    },
+    "rfc5280-x509:TBSCertificate#ba1961a0": {
+      "children": [
+        "rfc5280-x509:TBSCertificate#6828bd8b"
+      ],
+      "kind": "named-type",
+      "name": "serialNumber"
+    },
+    "rfc5280-x509:TBSCertificate#bd4ccf0c": {
+      "children": [
+        "rfc5280-x509:TBSCertificate#943e3676"
+      ],
+      "kind": "tag",
+      "name": "[0] EXPLICIT"
+    },
+    "rfc5280-x509:TBSCertificate#bd6bfeb6": {
+      "children": [
+        "rfc5280-x509:TBSCertificate#80b6dc2a"
+      ],
+      "kind": "named-type",
+      "name": "signature"
+    },
+    "rfc5280-x509:TBSCertificate#c0833b22": {
+      "children": [
+        "rfc5280-x509:TBSCertificate#82375b9a"
+      ],
+      "kind": "named-type",
+      "name": "version"
+    },
+    "rfc5280-x509:TBSCertificate#c3ad2134": {
+      "children": [
+        "rfc5280-x509:TBSCertificate#2f51cb32"
+      ],
+      "kind": "named-type",
+      "name": "issuer"
+    },
+    "rfc5280-x509:TBSCertificate#d51f69e3": {
+      "children": [
+        "rfc5280-x509:TBSCertificate#c0833b22",
+        "rfc5280-x509:TBSCertificate#ba1961a0",
+        "rfc5280-x509:TBSCertificate#bd6bfeb6",
+        "rfc5280-x509:TBSCertificate#c3ad2134",
+        "rfc5280-x509:TBSCertificate#1dea0a4b",
+        "rfc5280-x509:TBSCertificate#2122b722",
+        "rfc5280-x509:TBSCertificate#42627204",
+        "rfc5280-x509:TBSCertificate#5ea6c411",
+        "rfc5280-x509:TBSCertificate#8f0f426e",
+        "rfc5280-x509:TBSCertificate#5db58754"
+      ],
+      "kind": "sequence",
+      "name": "SEQUENCE"
+    },
+    "rfc5280-x509:TBSCertificate#dfe14103": {
+      "kind": "reference",
+      "name": "UniqueIdentifier"
+    },
+    "rfc5280-x509:TBSCertificate#ed7eb4a6": {
+      "children": [
+        "rfc5280-x509:TBSCertificate#dfe14103"
+      ],
+      "kind": "tag",
+      "name": "[1] IMPLICIT"
+    },
+    "rfc5280-x509:Time#053ad7df": {
+      "kind": "terminal",
+      "name": "UTCTime"
+    },
+    "rfc5280-x509:Time#30844b13": {
+      "kind": "terminal",
+      "name": "GeneralizedTime"
+    },
+    "rfc5280-x509:Time#8c2a74b1": {
+      "children": [
+        "rfc5280-x509:Time#053ad7df"
+      ],
+      "kind": "named-type",
+      "name": "utcTime"
+    },
+    "rfc5280-x509:Time#a5d5979e": {
+      "children": [
+        "rfc5280-x509:Time#b5d33999"
+      ],
+      "kind": "rule",
+      "name": "Time",
+      "span": {
+        "end": 1695,
+        "source": "rfc5280-x509",
+        "start": 1611
+      }
+    },
+    "rfc5280-x509:Time#b5d33999": {
+      "children": [
+        "rfc5280-x509:Time#8c2a74b1",
+        "rfc5280-x509:Time#eb0b5f15"
+      ],
+      "kind": "alternation",
+      "name": "CHOICE"
+    },
+    "rfc5280-x509:Time#eb0b5f15": {
+      "children": [
+        "rfc5280-x509:Time#30844b13"
+      ],
+      "kind": "named-type",
+      "name": "generalTime"
+    },
+    "rfc5280-x509:UniqueIdentifier#5c8dadf3": {
+      "children": [
+        "rfc5280-x509:UniqueIdentifier#a198d3af"
+      ],
+      "kind": "rule",
+      "name": "UniqueIdentifier",
+      "span": {
+        "end": 1730,
+        "source": "rfc5280-x509",
+        "start": 1697
+      }
+    },
+    "rfc5280-x509:UniqueIdentifier#a198d3af": {
+      "kind": "terminal",
+      "name": "BIT STRING"
+    },
+    "rfc5280-x509:Validity#502fa4d5": {
+      "children": [
+        "rfc5280-x509:Validity#f54af9e3"
+      ],
+      "kind": "rule",
+      "name": "Validity",
+      "span": {
+        "end": 1609,
+        "source": "rfc5280-x509",
+        "start": 1537
+      }
+    },
+    "rfc5280-x509:Validity#8469c8ed": {
+      "children": [
+        "rfc5280-x509:Validity#ea820b6f"
+      ],
+      "kind": "named-type",
+      "name": "notBefore"
+    },
+    "rfc5280-x509:Validity#c49bfef9": {
+      "kind": "reference",
+      "name": "Time"
+    },
+    "rfc5280-x509:Validity#c9a15ab6": {
+      "children": [
+        "rfc5280-x509:Validity#c49bfef9"
+      ],
+      "kind": "named-type",
+      "name": "notAfter"
+    },
+    "rfc5280-x509:Validity#ea820b6f": {
+      "kind": "reference",
+      "name": "Time"
+    },
+    "rfc5280-x509:Validity#f54af9e3": {
+      "children": [
+        "rfc5280-x509:Validity#8469c8ed",
+        "rfc5280-x509:Validity#c9a15ab6"
+      ],
+      "kind": "sequence",
+      "name": "SEQUENCE"
+    },
+    "rfc5280-x509:Version#1eec8795": {
+      "children": [
+        "rfc5280-x509:Version#e67c7da4"
+      ],
+      "kind": "rule",
+      "name": "Version",
+      "span": {
+        "end": 783,
+        "source": "rfc5280-x509",
+        "start": 735
+      }
+    },
+    "rfc5280-x509:Version#e67c7da4": {
+      "kind": "terminal",
+      "name": "INTEGER"
+    }
+  },
+  "root": "rfc5280-x509:Certificate#49f9675f",
+  "schema_version": 1,
+  "source": {
+    "rfc": "RFC 5280",
+    "section": "Appendix A",
+    "uri": "https://www.rfc-editor.org/rfc/rfc5280"
+  }
+}

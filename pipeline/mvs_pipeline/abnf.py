@@ -17,23 +17,24 @@ so repeated occurrences of the same construct get distinct ids.
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import re
-from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
+
+from mvs_pipeline import astbuild
+from mvs_pipeline.astbuild import Elem, Rule
 
 _GRAMMAR_DIR = Path(__file__).resolve().parent / "grammars"
 
 # Kinds emitted for grammar constructs. All are members of the schema `kind` enum.
-_ALTERNATION = "alternation"
-_SEQUENCE = "sequence"
-_REPETITION = "repetition"
-_OPTIONAL = "optional"
-_GROUP = "group"
-_REFERENCE = "reference"
-_TERMINAL = "terminal"
+_ALTERNATION = astbuild.ALTERNATION
+_SEQUENCE = astbuild.SEQUENCE
+_REPETITION = astbuild.REPETITION
+_OPTIONAL = astbuild.OPTIONAL
+_GROUP = astbuild.GROUP
+_REFERENCE = astbuild.REFERENCE
+_TERMINAL = astbuild.TERMINAL
 
 _RULENAME = re.compile(r"[A-Za-z][A-Za-z0-9-]*")
 _DEFINED_AS = re.compile(r"\s*(=/|=)\s*")
@@ -41,28 +42,6 @@ _DEFINED_AS = re.compile(r"\s*(=/|=)\s*")
 
 class AbnfSyntaxError(ValueError):
     """Raised when the ABNF text cannot be parsed."""
-
-
-@dataclass
-class Elem:
-    """An internal grammar-construct node before it is flattened to schema nodes."""
-
-    kind: str
-    name: str
-    children: list[Elem] = field(default_factory=list)
-    # Distinguishing detail (terminal value, reference target, repeat spec) that
-    # keeps structurally-different siblings apart in the path hash.
-    tag: str = ""
-
-
-@dataclass
-class Rule:
-    """A parsed ABNF rule: a name, its body, and its span in the source text."""
-
-    name: str
-    body: Elem
-    start: int
-    end: int
 
 
 # --------------------------------------------------------------------------- #
@@ -350,59 +329,9 @@ def parse_rules(abnf_text: str) -> list[Rule]:
     return [by_name[n] for n in order]
 
 
-def _hash8(grammar: str, structural_path: str) -> str:
-    digest = hashlib.sha256(f"{grammar}|{structural_path}".encode()).hexdigest()
-    return digest[:8]
-
-
 def build_ast(grammar: str, abnf_text: str, source: dict[str, str] | None = None) -> dict[str, Any]:
     """Build an ``ast.schema.json``-conforming AST from ABNF text."""
-    rules = parse_rules(abnf_text)
-    if not rules:
-        raise AbnfSyntaxError("grammar contains no rules")
-
-    nodes: dict[str, dict[str, Any]] = {}
-
-    def node_id(rule_name: str, structural_path: str) -> str:
-        return f"{grammar}:{rule_name}#{_hash8(grammar, structural_path)}"
-
-    def build_elem(elem: Elem, rule_name: str, path: str) -> str:
-        nid = node_id(rule_name, path)
-        child_ids: list[str] = []
-        for idx, child in enumerate(elem.children):
-            child_path = f"{path}>{child.kind}:{child.tag}:{idx}"
-            child_ids.append(build_elem(child, rule_name, child_path))
-        node: dict[str, Any] = {"kind": elem.kind, "name": elem.name}
-        if child_ids:
-            node["children"] = child_ids
-        if nid in nodes:
-            raise AbnfSyntaxError(f"node id collision on {nid} ({path})")
-        nodes[nid] = node
-        return nid
-
-    root_id: str | None = None
-    for rule in rules:
-        rid = node_id(rule.name, rule.name)
-        body_id = build_elem(rule.body, rule.name, f"{rule.name}>body")
-        nodes[rid] = {
-            "kind": "rule",
-            "name": rule.name,
-            "children": [body_id],
-            "span": {"start": rule.start, "end": rule.end, "source": grammar},
-        }
-        if root_id is None:
-            root_id = rid
-
-    assert root_id is not None
-    ast: dict[str, Any] = {
-        "schema_version": 1,
-        "grammar": grammar,
-        "root": root_id,
-        "nodes": nodes,
-    }
-    if source:
-        ast["source"] = source
-    return ast
+    return astbuild.assemble(grammar, parse_rules(abnf_text), source)
 
 
 def load_grammar(name: str) -> str:
