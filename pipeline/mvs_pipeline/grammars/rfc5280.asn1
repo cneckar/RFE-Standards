@@ -1,0 +1,77 @@
+-- RFC 5280 X.509 certificate core (subset of the PKIX1Explicit88 /
+-- PKIX1Implicit88 modules, Appendix A). Curated to cover the constructs the
+-- MVS telemetry cares about: tags, string types, and OPTIONAL components.
+-- Source: https://www.rfc-editor.org/rfc/rfc5280#appendix-A
+
+PKIX1-Cert-Core DEFINITIONS EXPLICIT TAGS ::=
+BEGIN
+
+Certificate  ::=  SEQUENCE  {
+     tbsCertificate       TBSCertificate,
+     signatureAlgorithm   AlgorithmIdentifier,
+     signatureValue       BIT STRING  }
+
+TBSCertificate  ::=  SEQUENCE  {
+     version         [0]  EXPLICIT Version DEFAULT v1,
+     serialNumber         CertificateSerialNumber,
+     signature            AlgorithmIdentifier,
+     issuer               Name,
+     validity             Validity,
+     subject              Name,
+     subjectPublicKeyInfo SubjectPublicKeyInfo,
+     issuerUniqueID  [1]  IMPLICIT UniqueIdentifier OPTIONAL,
+     subjectUniqueID [2]  IMPLICIT UniqueIdentifier OPTIONAL,
+     extensions      [3]  EXPLICIT Extensions OPTIONAL  }
+
+Version  ::=  INTEGER  {  v1(0), v2(1), v3(2)  }
+
+CertificateSerialNumber  ::=  INTEGER
+
+AlgorithmIdentifier  ::=  SEQUENCE  {
+     algorithm            OBJECT IDENTIFIER,
+     parameters           ANY DEFINED BY algorithm OPTIONAL  }
+
+Name  ::=  CHOICE  {
+     rdnSequence  RDNSequence  }
+
+RDNSequence  ::=  SEQUENCE OF RelativeDistinguishedName
+
+RelativeDistinguishedName  ::=  SET OF AttributeTypeAndValue
+
+AttributeTypeAndValue  ::=  SEQUENCE  {
+     type   AttributeType,
+     value  AttributeValue  }
+
+AttributeType  ::=  OBJECT IDENTIFIER
+
+AttributeValue  ::=  DirectoryString
+
+DirectoryString  ::=  CHOICE  {
+     teletexString    TeletexString,
+     printableString  PrintableString,
+     universalString  UniversalString,
+     utf8String       UTF8String,
+     bmpString        BMPString  }
+
+Validity  ::=  SEQUENCE  {
+     notBefore  Time,
+     notAfter   Time  }
+
+Time  ::=  CHOICE  {
+     utcTime      UTCTime,
+     generalTime  GeneralizedTime  }
+
+UniqueIdentifier  ::=  BIT STRING
+
+SubjectPublicKeyInfo  ::=  SEQUENCE  {
+     algorithm         AlgorithmIdentifier,
+     subjectPublicKey  BIT STRING  }
+
+Extensions  ::=  SEQUENCE OF Extension
+
+Extension  ::=  SEQUENCE  {
+     extnID     OBJECT IDENTIFIER,
+     critical   BOOLEAN DEFAULT FALSE,
+     extnValue  OCTET STRING  }
+
+END
