@@ -1,0 +1,24 @@
+-- Minified MVS grammar for rfc5280-x509 (generated).
+-- 20 nodes pruned below usage threshold 0.001.
+
+rfc5280_x509 DEFINITIONS ::= BEGIN
+
+Certificate ::= SEQUENCE { tbsCertificate TBSCertificate, signatureAlgorithm AlgorithmIdentifier, signatureValue BIT STRING }
+TBSCertificate ::= SEQUENCE { version [0] EXPLICIT Version OPTIONAL, serialNumber CertificateSerialNumber, signature AlgorithmIdentifier, issuer Name, validity Validity, subject Name, subjectPublicKeyInfo SubjectPublicKeyInfo, extensions [3] EXPLICIT Extensions OPTIONAL }
+Version ::= INTEGER
+CertificateSerialNumber ::= INTEGER
+AlgorithmIdentifier ::= SEQUENCE { algorithm OBJECT IDENTIFIER, parameters ANY OPTIONAL }
+Name ::= CHOICE { rdnSequence RDNSequence }
+RDNSequence ::= SEQUENCE OF RelativeDistinguishedName
+RelativeDistinguishedName ::= SET OF AttributeTypeAndValue
+AttributeTypeAndValue ::= SEQUENCE { type AttributeType, value AttributeValue }
+AttributeType ::= OBJECT IDENTIFIER
+AttributeValue ::= DirectoryString
+DirectoryString ::= CHOICE { utf8String UTF8String }
+Validity ::= SEQUENCE { notBefore Time, notAfter Time }
+Time ::= CHOICE { utcTime UTCTime }
+SubjectPublicKeyInfo ::= SEQUENCE { algorithm AlgorithmIdentifier, subjectPublicKey BIT STRING }
+Extensions ::= SEQUENCE OF Extension
+Extension ::= SEQUENCE { extnID OBJECT IDENTIFIER, critical BOOLEAN OPTIONAL, extnValue OCTET STRING }
+
+END

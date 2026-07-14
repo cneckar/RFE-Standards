@@ -1,0 +1,29 @@
+; Minified MVS grammar for rfc3986-uri (generated).
+; 238 nodes pruned below usage threshold 0.001.
+
+URI = scheme ":" hier-part [ "?" query ] [ "#" fragment ]
+hier-part = "//" authority path-abempty / path-rootless
+scheme = ALPHA *( ALPHA )
+authority = [ userinfo "@" ] host [ ":" port ]
+userinfo = *( unreserved )
+host = IP-literal / IPv4address / reg-name
+port = *DIGIT
+IP-literal = "[" ( IPv6address ) "]"
+IPv6address = [ *5( h16 ":" ) h16 ] "::" h16
+h16 = 1*4HEXDIG
+IPv4address = dec-octet "." dec-octet "." dec-octet "." dec-octet
+dec-octet = DIGIT / "1" 2DIGIT
+reg-name = *( unreserved )
+path-abempty = *( "/" segment )
+path-rootless = segment-nz
+segment = *pchar
+segment-nz = 1*pchar
+pchar = unreserved / pct-encoded / sub-delims / ":" / "@"
+query = *( pchar )
+fragment = *( pchar )
+pct-encoded = "%" HEXDIG HEXDIG
+unreserved = ALPHA / DIGIT / "-" / "."
+sub-delims = "&" / "+" / "="
+ALPHA = %x61-7A
+DIGIT = %x30-39
+HEXDIG = DIGIT / "B" / "D" / "E"
