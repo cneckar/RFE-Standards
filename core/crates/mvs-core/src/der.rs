@@ -11,6 +11,7 @@
 //! body left opaque — it consumes the value and keeps its place rather than
 //! failing the whole certificate. Telemetry measures; it does not validate.
 
+use std::cell::Cell;
 use std::collections::HashMap;
 
 use mvs_schema::{Ast, Kind, NodeId};
@@ -22,6 +23,8 @@ pub struct DerResult {
     pub matched: bool,
     /// AST node ids exercised by the encoding.
     pub visited: Vec<NodeId>,
+    /// Set when the walk was abandoned because the nesting-depth bound was hit.
+    pub depth_exceeded: bool,
 }
 
 /// A single DER tag-length-value triple.
@@ -135,31 +138,49 @@ fn tag_number(name: &str) -> Option<u32> {
 pub struct DerWalker<'a> {
     ast: &'a Ast,
     rule_by_name: HashMap<&'a str, &'a NodeId>,
+    max_depth: usize,
+    depth: Cell<usize>,
+    depth_exceeded: Cell<bool>,
 }
 
 impl<'a> DerWalker<'a> {
-    /// Build a walker for the given ASN.1 AST.
+    /// Build a walker for the given ASN.1 AST (no nesting-depth bound).
     pub fn new(ast: &'a Ast) -> Self {
+        Self::with_max_depth(ast, usize::MAX)
+    }
+
+    /// Build a walker that abandons the walk once value nesting exceeds `max_depth`.
+    pub fn with_max_depth(ast: &'a Ast, max_depth: usize) -> Self {
         let mut rule_by_name = HashMap::new();
         for (id, node) in &ast.nodes {
             if node.kind == Kind::Rule {
                 rule_by_name.insert(node.name.as_str(), id);
             }
         }
-        Self { ast, rule_by_name }
+        Self {
+            ast,
+            rule_by_name,
+            max_depth,
+            depth: Cell::new(0),
+            depth_exceeded: Cell::new(false),
+        }
     }
 
     /// Decode `der` and record the AST nodes its structure exercises.
     pub fn walk(&self, der: &[u8]) -> DerResult {
+        self.depth.set(0);
+        self.depth_exceeded.set(false);
         let mut visited = Vec::new();
         match self.match_type(&self.ast.root, der, 0, &mut visited) {
             Some(consumed) => DerResult {
                 matched: consumed == der.len(),
                 visited,
+                depth_exceeded: self.depth_exceeded.get(),
             },
             None => DerResult {
                 matched: false,
                 visited: Vec::new(),
+                depth_exceeded: self.depth_exceeded.get(),
             },
         }
     }
@@ -172,9 +193,28 @@ impl<'a> DerWalker<'a> {
         node.children.first()
     }
 
+    /// Depth-guarding wrapper around [`Self::match_type_inner`].
+    fn match_type(
+        &self,
+        node_id: &str,
+        der: &[u8],
+        pos: usize,
+        visited: &mut Vec<NodeId>,
+    ) -> Option<usize> {
+        let d = self.depth.get();
+        if d >= self.max_depth {
+            self.depth_exceeded.set(true);
+            return None;
+        }
+        self.depth.set(d + 1);
+        let result = self.match_type_inner(node_id, der, pos, visited);
+        self.depth.set(d);
+        result
+    }
+
     /// Match `node` against one DER value at `der[pos..]`, returning the new
     /// position on success. Rolls back recorded nodes on failure.
-    fn match_type(
+    fn match_type_inner(
         &self,
         node_id: &str,
         der: &[u8],
