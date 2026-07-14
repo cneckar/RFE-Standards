@@ -15,6 +15,15 @@ dev = [
     "pytest>=8",
 ]
 
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+# The two Python components live in their own top-level dirs; point setuptools
+# at them explicitly so flat-layout auto-discovery doesn't trip over core/ etc.
+where = ["pipeline", "rfe-service"]
+
 [tool.ruff]
 target-version = "py311"
 line-length = 100
