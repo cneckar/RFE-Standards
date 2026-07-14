@@ -25,6 +25,7 @@ _SCHEMAS = {
     "hits": "hits.schema.json",
     "overrides": "overrides.schema.json",
     "pruned": "pruned.schema.json",
+    "rfe": "rfe-submission.schema.json",
 }
 
 

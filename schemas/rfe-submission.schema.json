@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/cneckar/RFE-Standards/schemas/rfe-submission.schema.json",
+  "title": "RFE Submission Metadata",
+  "description": "The submission.json manifest inside an RFE upload. A consumer submits a corpus arguing that a pruned feature is needed in their domain; the telemetry re-run (Task 5.2) evaluates it.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "grammar", "kind", "submitter", "rationale"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "grammar": {
+      "description": "Which standard the corpus targets, e.g. 'rfc3986-uri' or 'rfc5280-x509'.",
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "kind": {
+      "description": "Corpus payload type.",
+      "enum": ["uri", "cert"]
+    },
+    "submitter": {
+      "description": "Who is submitting (name / org / contact).",
+      "type": "string",
+      "minLength": 1
+    },
+    "rationale": {
+      "description": "Why the pruned feature matters in the submitter's domain.",
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}
