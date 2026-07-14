@@ -1,0 +1,41 @@
+[project]
+name = "rfe-standards-pipeline"
+version = "0.0.0"
+description = "Dev-time tooling for the MVS/RFE framework: AST extraction, corpus ingestion, pruner, and RFE service."
+requires-python = ">=3.11"
+license = { text = "MIT" }
+readme = "README.md"
+
+# Runtime deps are added per-ticket (abnf, asn1crypto, fastapi, ...).
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.15",
+    "pytest>=8",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+# The two Python components live in their own top-level dirs; point setuptools
+# at them explicitly so flat-layout auto-discovery doesn't trip over core/ etc.
+where = ["pipeline", "rfe-service"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+src = ["pipeline", "rfe-service"]
+
+[tool.ruff.lint]
+# Sensible, non-noisy default set: pyflakes, pycodestyle, isort, bugbear,
+# pyupgrade, comprehensions.
+select = ["E", "F", "I", "B", "UP", "C4"]
+
+[tool.pytest.ini_options]
+# Both Python components live in their own top-level dirs; expose them to imports.
+pythonpath = ["pipeline", "rfe-service"]
+testpaths = ["pipeline", "rfe-service"]
+addopts = "-ra"

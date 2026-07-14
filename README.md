@@ -38,6 +38,33 @@ Hybrid **Python + Rust** (see [ADR 0001](docs/adr/0001-technology-stack.md)):
 Phases communicate through a **JSON artifact spine** (AST, `hits.json`,
 `overrides.yaml`, `pruned.json`), which is the language boundary — no FFI.
 
+## Layout
+
+```
+core/          Rust workspace — instrumented parser core + native reference parsers
+  crates/mvs-core/       node-hit telemetry primitives (Task 2.1)
+  crates/mvs-refparse/   reference parsers + strict failure model (Phase 4)
+pipeline/      Python — AST extraction, corpus ingestion, pruner (Phases 1–3)
+rfe-service/   Python — RFE webhook + telemetry re-run (Phase 5)
+schemas/       JSON/YAML artifact contracts (Task 0.2)
+docs/          plan, tickets, ADRs
+```
+
+## Developing
+
+```bash
+# Rust
+cd core && cargo fmt --all --check && cargo clippy --all-targets --all-features && cargo test --all
+
+# Python (from repo root)
+pip install ".[dev]"
+ruff check . && ruff format --check . && pytest
+```
+
+CI (`.github/workflows/ci.yml`) runs the same lint/test on every push and PR, plus a
+cross-compilation matrix that builds the Rust workspace for Linux/macOS/Windows on
+`x86_64` + `aarch64` — enforcing the native/cross-platform constraint from ADR 0001.
+
 ## Documents
 
 - [`docs/PLAN.md`](docs/PLAN.md) — the architectural source of truth. Phases are Epics; Tasks are tickets.
@@ -46,4 +73,4 @@ Phases communicate through a **JSON artifact spine** (AST, `hits.json`,
 
 ## Status
 
-Planning. Ticket breakdown complete in `docs/TICKETS.md`; issues being filed.
+Scaffolding complete (T0.1). Next: T0.2 — shared artifact schemas.
