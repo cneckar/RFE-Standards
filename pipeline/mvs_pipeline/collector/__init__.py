@@ -8,11 +8,13 @@ shared `Source` protocol and deterministic sampling used across them. See
 from mvs_pipeline.collector.base import Source, keep_sample, stable_fraction
 from mvs_pipeline.collector.commoncrawl import CommonCrawlUrlIndex
 from mvs_pipeline.collector.wat import CommonCrawlWat
+from mvs_pipeline.collector.wikipedia import WikipediaExternalLinks
 
 __all__ = [
     "CommonCrawlUrlIndex",
     "CommonCrawlWat",
     "Source",
+    "WikipediaExternalLinks",
     "keep_sample",
     "stable_fraction",
 ]
