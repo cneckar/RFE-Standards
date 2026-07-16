@@ -34,10 +34,13 @@ where = ["pipeline", "rfe-service"]
 include = ["mvs_pipeline*", "rfe_service*"]
 
 [tool.setuptools.package-data]
-# Ship vendored grammar files and the Public Suffix List with the wheel.
+# Ship vendored data with the wheel: grammar files, the JSON Schema definitions,
+# and the Public Suffix List. Keeping these inside the package means they resolve
+# adjacent to their modules under any install layout, not just a source checkout.
 mvs_pipeline = [
     "grammars/*.abnf",
     "grammars/*.asn1",
+    "schemas/*.schema.json",
     "collector/data/*.dat",
 ]
 

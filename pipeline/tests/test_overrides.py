@@ -5,10 +5,10 @@ import pytest
 from jsonschema import ValidationError
 
 from mvs_pipeline import overrides, schema
-from mvs_pipeline.schema import schema_dir
 
 ROOT = Path(__file__).resolve().parents[2]
 ARTIFACTS = ROOT / "artifacts"
+EXAMPLES = ROOT / "schemas" / "examples"
 
 
 def _all_ast_node_ids() -> set[str]:
@@ -49,7 +49,7 @@ def test_helpers():
 
 
 def test_invalid_override_is_rejected():
-    bad = schema_dir() / "examples" / "invalid" / "overrides-missing-justification.yaml"
+    bad = EXAMPLES / "invalid" / "overrides-missing-justification.yaml"
     with pytest.raises(ValidationError):
         overrides.load_overrides(bad)
     assert not schema.is_valid("overrides", {"schema_version": 1})  # missing 'overrides'
