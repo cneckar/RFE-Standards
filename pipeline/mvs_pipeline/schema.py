@@ -1,9 +1,15 @@
 """Load and validate the shared artifact-spine documents (Task 0.2).
 
 This module is the Python side of the Python/Rust contract. It resolves the JSON
-Schemas that live in ``schemas/`` and validates in-memory artifacts (AST,
-telemetry hits, the override registry, pruned-node sets) against them. Later
-phases import :func:`validate` rather than re-implementing schema checks.
+Schemas and validates in-memory artifacts (AST, telemetry hits, the override
+registry, pruned-node sets) against them. Later phases import :func:`validate`
+rather than re-implementing schema checks.
+
+The schema definitions are vendored *inside* the package
+(``mvs_pipeline/schemas/``, like the grammars and the Public Suffix List) so
+they resolve adjacent to this module in any layout — a source checkout, an
+editable install, or a plain ``pip install`` wheel. (Example fixtures stay under
+the repo-root ``schemas/examples/`` since they are shared with the Rust crate.)
 """
 
 from __future__ import annotations
@@ -16,8 +22,8 @@ from typing import Any
 import yaml
 from jsonschema import Draft202012Validator
 
-# Repo layout: <root>/schemas and <root>/pipeline/mvs_pipeline/schema.py
-_SCHEMA_DIR = Path(__file__).resolve().parents[2] / "schemas"
+# Vendored alongside this module: <pkg>/mvs_pipeline/schemas/*.schema.json.
+_SCHEMA_DIR = Path(__file__).resolve().parent / "schemas"
 
 # Logical artifact kind -> schema filename.
 _SCHEMAS = {
@@ -30,7 +36,7 @@ _SCHEMAS = {
 
 
 def schema_dir() -> Path:
-    """Directory holding the JSON Schemas and example fixtures."""
+    """Directory holding the vendored JSON Schema definitions."""
     return _SCHEMA_DIR
 
 

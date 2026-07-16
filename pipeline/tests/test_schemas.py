@@ -1,10 +1,15 @@
+from pathlib import Path
+
 import pytest
 from jsonschema import ValidationError
 
+import mvs_pipeline
 from mvs_pipeline import schema
 from mvs_pipeline.schema import load_document, schema_dir
 
-EXAMPLES = schema_dir() / "examples"
+# Example fixtures live at the repo root (shared with the Rust crate); the schema
+# definitions themselves are vendored inside the package.
+EXAMPLES = Path(__file__).resolve().parents[2] / "schemas" / "examples"
 
 # (artifact kind, fixture filename)
 VALID_FIXTURES = [
@@ -13,6 +18,20 @@ VALID_FIXTURES = [
     ("overrides", "overrides.yaml"),
     ("pruned", "uri.pruned.json"),
 ]
+
+
+def test_schemas_are_vendored_in_the_package():
+    """The schema definitions resolve from inside the installed package.
+
+    Guards the packaging fix: ``schema_dir()`` must live under the
+    ``mvs_pipeline`` package (adjacent to the module), so a plain ``pip install``
+    ships them and resolution never depends on a repo checkout being present.
+    """
+    pkg_root = Path(mvs_pipeline.__file__).resolve().parent
+    assert schema_dir() == pkg_root / "schemas"
+    for kind in ("ast", "hits", "overrides", "pruned", "rfe"):
+        # Each declared schema is present next to the module and parses.
+        assert schema.is_valid(kind, {}) in (True, False)  # loads without FileNotFoundError
 
 
 @pytest.mark.parametrize(("kind", "filename"), VALID_FIXTURES)

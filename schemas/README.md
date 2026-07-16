@@ -4,7 +4,14 @@ The **artifact spine** — the JSON/YAML contracts every phase reads and writes,
 and the boundary between the Python and Rust halves (see
 [ADR 0001](../docs/adr/0001-technology-stack.md)). Frozen in **Task 0.2** (#8).
 
+The schema **definitions** are vendored inside the Python package at
+[`pipeline/mvs_pipeline/schemas/`](../pipeline/mvs_pipeline/schemas/) so they ship
+with a `pip install` and resolve in any layout. The example fixtures below stay
+here because the Rust crate reads them too.
+
 ## Contracts (JSON Schema, draft 2020-12)
+
+Defined in `pipeline/mvs_pipeline/schemas/`:
 
 | File | Artifact | Produced by | Consumed by |
 | --- | --- | --- | --- |
