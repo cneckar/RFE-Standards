@@ -71,6 +71,8 @@ cross-compilation matrix that builds the Rust workspace for Linux/macOS/Windows 
 - [`docs/TICKETS.md`](docs/TICKETS.md) — the ticket breakdown with dependencies.
 - [`docs/adr/0001-technology-stack.md`](docs/adr/0001-technology-stack.md) — stack decision.
 - [`docs/telemetry.md`](docs/telemetry.md) — corpus → hits pipeline (URI text + X.509 DER).
+- [`docs/CORPUS-PLAN.md`](docs/CORPUS-PLAN.md) — plan for a free, representative 10⁸-URI corpus.
+- [`docs/collector.md`](docs/collector.md) — the free-source collector (Epic 6): sources → sample → bounded telemetry → hits.
 - [`docs/overrides.md`](docs/overrides.md) — the Criticality Override Registry.
 - [`docs/rfe.md`](docs/rfe.md) — the submit → re-run → auto-PR RFE loop.
 

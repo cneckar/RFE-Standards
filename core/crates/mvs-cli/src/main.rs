@@ -38,6 +38,10 @@ struct Options {
     corpus: Option<String>,
     der_dir: Option<String>,
     out: String,
+    /// T4.2 bound: abandon a parse that descends deeper than this many frames.
+    max_depth: Option<usize>,
+    /// T4.2 bound: skip a corpus line longer than this many bytes.
+    max_input_bytes: Option<usize>,
 }
 
 fn parse_args(args: &[String]) -> Result<Options, String> {
@@ -45,6 +49,8 @@ fn parse_args(args: &[String]) -> Result<Options, String> {
     let mut corpus = None;
     let mut der_dir = None;
     let mut out = None;
+    let mut max_depth = None;
+    let mut max_input_bytes = None;
     let mut it = args.iter();
     while let Some(flag) = it.next() {
         match flag.as_str() {
@@ -52,9 +58,14 @@ fn parse_args(args: &[String]) -> Result<Options, String> {
             "--corpus" => corpus = Some(next_value(&mut it, "--corpus")?),
             "--der-dir" => der_dir = Some(next_value(&mut it, "--der-dir")?),
             "--out" => out = Some(next_value(&mut it, "--out")?),
+            "--max-depth" => max_depth = Some(parse_usize(&mut it, "--max-depth")?),
+            "--max-input-bytes" => {
+                max_input_bytes = Some(parse_usize(&mut it, "--max-input-bytes")?)
+            }
             "-h" | "--help" => {
                 return Err("usage: mvs-telemetry --ast <path> (--corpus <file|-> | \
-                            --der-dir <dir>) --out <file|->"
+                            --der-dir <dir>) --out <file|-> [--max-depth N] \
+                            [--max-input-bytes N]"
                     .to_string());
             }
             other => return Err(format!("unknown argument {other}")),
@@ -68,7 +79,16 @@ fn parse_args(args: &[String]) -> Result<Options, String> {
         corpus,
         der_dir,
         out: out.ok_or("missing --out")?,
+        max_depth,
+        max_input_bytes,
     })
+}
+
+fn parse_usize(it: &mut std::slice::Iter<'_, String>, flag: &str) -> Result<usize, String> {
+    let value = next_value(it, flag)?;
+    value
+        .parse::<usize>()
+        .map_err(|_| format!("{flag} requires a non-negative integer, got {value:?}"))
 }
 
 fn next_value(it: &mut std::slice::Iter<'_, String>, flag: &str) -> Result<String, String> {
@@ -107,6 +127,7 @@ fn run(args: &[String]) -> Result<String, String> {
 
     let mut agg = HitAggregator::new();
     let mut matched = 0u64;
+    let mut skipped = 0u64;
 
     if let Some(dir) = &opts.der_dir {
         let walker = DerWalker::new(&ast);
@@ -121,12 +142,22 @@ fn run(args: &[String]) -> Result<String, String> {
     } else {
         let grammar = Grammar::compile(&ast).map_err(|e| format!("compiling grammar: {e}"))?;
         let corpus = read_source(opts.corpus.as_deref().unwrap_or("-"))?;
+        let max_depth = opts.max_depth.unwrap_or(usize::MAX);
         for line in corpus.lines() {
             let input = line.trim();
             if input.is_empty() || input.starts_with('#') {
                 continue;
             }
-            let result = grammar.parse(input.as_bytes());
+            // T4.2 bound: a single pathological URL in a 10^8 corpus must not be
+            // able to stall a shard, so over-long lines are skipped up front.
+            if opts
+                .max_input_bytes
+                .is_some_and(|limit| input.len() > limit)
+            {
+                skipped += 1;
+                continue;
+            }
+            let result = grammar.parse_bounded(input.as_bytes(), max_depth);
             if result.matched {
                 matched += 1;
             }
@@ -140,7 +171,7 @@ fn run(args: &[String]) -> Result<String, String> {
     write_sink(&opts.out, &format!("{json}\n"))?;
 
     Ok(format!(
-        "grammar={} samples={total} matched={matched} nodes={}",
+        "grammar={} samples={total} matched={matched} skipped={skipped} nodes={}",
         ast.grammar,
         hits.hits.len()
     ))
