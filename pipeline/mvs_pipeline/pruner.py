@@ -30,12 +30,17 @@ def prune(
     *,
     threshold: float = MIN_USAGE_PERCENTAGE,
     surviving_grammar: str,
+    provenance: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Compute the pruned-node set for a grammar.
 
     A node is pruned when ``hits/total_samples < threshold`` and it is not marked
     protected in ``overrides``. With an empty corpus every node has usage 0, so
     only protected nodes survive.
+
+    Corpus provenance (T6.7) is carried onto the pruned document: an explicit
+    ``provenance`` wins, else the block stamped on ``hits`` (if any) is inherited,
+    so a pruning decision stays traceable to its evidence.
     """
     if ast["grammar"] != hits["grammar"]:
         raise ValueError(
@@ -52,13 +57,16 @@ def prune(
     ]
     pruned.sort()
 
-    doc = {
+    doc: dict[str, Any] = {
         "schema_version": 1,
         "grammar": ast["grammar"],
         "threshold": threshold,
         "pruned": pruned,
         "surviving_grammar": surviving_grammar,
     }
+    inherited = provenance if provenance is not None else hits.get("provenance")
+    if inherited:
+        doc["provenance"] = inherited
     schema.validate("pruned", doc)
     return doc
 

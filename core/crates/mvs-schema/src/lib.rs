@@ -121,6 +121,34 @@ impl Ast {
     }
 }
 
+/// Optional, additive corpus-provenance block (T6.7).
+///
+/// Records where a hits/pruned artifact came from without altering the rest of
+/// the contract. Every field is optional so older artifacts (no `provenance`)
+/// still deserialize, and the block is skipped on serialization when empty.
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct Provenance {
+    /// Path/URI of the corpus manifest this artifact was built from.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub manifest: Option<String>,
+    /// Common Crawl crawl ids behind the corpus.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub crawl_ids: Vec<String>,
+    /// Wikipedia (or other) dump dates behind the corpus.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub dump_dates: Vec<String>,
+    /// Deterministic sampling seed that produced the corpus.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub seed: Option<i64>,
+    /// Number of URIs/samples in the corpus.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sample_size: Option<u64>,
+    /// When the artifact was produced (ISO 8601).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub timestamp: Option<String>,
+}
+
 /// Aggregated telemetry hits for a grammar (`hits.schema.json`).
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -133,6 +161,9 @@ pub struct Hits {
     pub total_samples: u64,
     /// Traversal count per node id (absent = 0).
     pub hits: BTreeMap<NodeId, u64>,
+    /// Optional corpus provenance (T6.7).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub provenance: Option<Provenance>,
 }
 
 impl Hits {
@@ -188,6 +219,9 @@ pub struct Pruned {
     pub pruned: Vec<NodeId>,
     /// Path/URI of the surviving minified standard.
     pub surviving_grammar: String,
+    /// Optional corpus provenance carried over from the hits (T6.7).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub provenance: Option<Provenance>,
 }
 
 #[cfg(test)]
@@ -224,6 +258,31 @@ mod tests {
         assert!(hits.usage_fraction("rfc3986-uri:userinfo#4a5b6c7d") < 0.001);
         // absent node -> 0
         assert_eq!(hits.usage_fraction("rfc3986-uri:nope#00000000"), 0.0);
+        // A fixture without a provenance block deserializes with None (T6.7).
+        assert!(hits.provenance.is_none());
+    }
+
+    #[test]
+    fn hits_with_provenance_roundtrips() {
+        // The optional, additive provenance block (T6.7) parses and round-trips.
+        let json = r#"{
+            "schema_version": 1,
+            "grammar": "rfc3986-uri",
+            "total_samples": 100,
+            "hits": {},
+            "provenance": {
+                "manifest": "o/manifest.json",
+                "crawl_ids": ["CC-MAIN-2024-10"],
+                "seed": 7,
+                "sample_size": 100
+            }
+        }"#;
+        let hits: Hits = serde_json::from_str(json).unwrap();
+        let prov = hits.provenance.clone().expect("provenance present");
+        assert_eq!(prov.seed, Some(7));
+        assert_eq!(prov.crawl_ids, vec!["CC-MAIN-2024-10"]);
+        let reparsed: Hits = serde_json::from_str(&serde_json::to_string(&hits).unwrap()).unwrap();
+        assert_eq!(hits, reparsed);
     }
 
     #[test]
