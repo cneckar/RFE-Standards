@@ -22,13 +22,18 @@ from typing import Any
 from mvs_pipeline import schema
 
 
-def merge_hits(docs: Iterable[dict[str, Any]]) -> dict[str, Any]:
+def merge_hits(
+    docs: Iterable[dict[str, Any]],
+    *,
+    provenance: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     """Sum a collection of shard ``hits`` documents into one.
 
     Each document is validated against the hits schema on the way in and the
     merged result is validated on the way out. All shards must share the same
     ``grammar``. An empty input is rejected — there is no grammar to attribute
-    the (empty) result to.
+    the (empty) result to. An optional ``provenance`` block (T6.7) is stamped
+    onto the merged document when given.
     """
     grammar: str | None = None
     total_samples = 0
@@ -51,31 +56,56 @@ def merge_hits(docs: Iterable[dict[str, Any]]) -> dict[str, Any]:
     if not seen:
         raise ValueError("merge_hits requires at least one hits document")
 
-    merged = {
+    merged: dict[str, Any] = {
         "schema_version": 1,
         "grammar": grammar,
         "total_samples": total_samples,
         # Sort keys so the merged artifact is byte-stable regardless of shard order.
         "hits": {k: counts[k] for k in sorted(counts)},
     }
+    if provenance:
+        merged["provenance"] = provenance
     schema.validate("hits", merged)
     return merged
 
 
-def merge_hits_files(paths: Iterable[str | Path]) -> dict[str, Any]:
+def merge_hits_files(
+    paths: Iterable[str | Path],
+    *,
+    provenance: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     """Load and merge shard ``hits.json`` files from disk."""
-    return merge_hits(schema.load_document(p) for p in paths)
+    return merge_hits((schema.load_document(p) for p in paths), provenance=provenance)
 
 
 def _main(argv: list[str] | None = None) -> int:
     import argparse
 
+    from mvs_pipeline.provenance import provenance_from_manifest
+
     parser = argparse.ArgumentParser(description="Merge per-shard hits.json files.")
     parser.add_argument("shards", type=Path, nargs="+", help="per-shard hits.json files")
     parser.add_argument("--out", type=Path, required=True, help="merged hits.json output")
+    parser.add_argument(
+        "--manifest",
+        type=Path,
+        default=None,
+        help="corpus manifest.json to stamp as provenance (T6.7)",
+    )
+    parser.add_argument(
+        "--timestamp",
+        default=None,
+        help="ISO-8601 timestamp to record in the provenance block",
+    )
     args = parser.parse_args(argv)
 
-    merged = merge_hits_files(args.shards)
+    provenance = None
+    if args.manifest is not None:
+        manifest = schema.load_document(args.manifest)
+        provenance = provenance_from_manifest(
+            manifest, manifest_ref=str(args.manifest), timestamp=args.timestamp
+        )
+    merged = merge_hits_files(args.shards, provenance=provenance)
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(merged, indent=2, sort_keys=True) + "\n")
     print(

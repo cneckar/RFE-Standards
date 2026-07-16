@@ -28,12 +28,49 @@
       "description": "Path/URI of the minified standard containing only surviving nodes (e.g. the generated mvs.abnf / mvs.asn1).",
       "type": "string",
       "minLength": 1
+    },
+    "provenance": {
+      "description": "Optional, additive record of the corpus behind the hits this pruning was computed from (T6.7).",
+      "$ref": "#/$defs/provenance"
     }
   },
   "$defs": {
     "node_id": {
       "type": "string",
       "pattern": "^[a-z0-9][a-z0-9-]*:[A-Za-z0-9._-]+#[0-9a-f]{8}$"
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "manifest": {
+          "description": "Path/URI of the corpus manifest this artifact was built from.",
+          "type": "string"
+        },
+        "crawl_ids": {
+          "description": "Common Crawl crawl ids behind the corpus (e.g. CC-MAIN-2024-10).",
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "dump_dates": {
+          "description": "Wikipedia (or other) dump dates behind the corpus (YYYYMMDD).",
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "seed": {
+          "description": "Deterministic sampling seed that produced the corpus.",
+          "type": "integer"
+        },
+        "sample_size": {
+          "description": "Number of URIs/samples in the corpus.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "timestamp": {
+          "description": "When the artifact was produced (ISO 8601).",
+          "type": "string"
+        }
+      }
     }
   }
 }

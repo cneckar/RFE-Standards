@@ -467,6 +467,8 @@ impl HitAggregator {
             grammar: grammar_id.to_string(),
             total_samples: self.total,
             hits: self.counts.into_iter().collect(),
+            // Provenance is stamped later by the Python merge/pruner (T6.7).
+            provenance: None,
         }
     }
 }
