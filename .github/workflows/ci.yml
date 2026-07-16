@@ -54,6 +54,27 @@ jobs:
       - name: pytest
         run: python -m pytest
 
+  e2e:
+    name: Collector end-to-end (real binary)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: core
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Build mvs-telemetry
+        run: cargo build -p mvs-cli --manifest-path core/Cargo.toml
+      - name: Install dev deps
+        run: python -m pip install --upgrade pip ".[dev]"
+      - name: Run the collector end-to-end over committed fixtures
+        env:
+          MVS_TELEMETRY_BIN: ${{ github.workspace }}/core/target/debug/mvs-telemetry
+        run: python -m pytest pipeline/tests/test_collector_orchestrate.py -v
+
   cross-build:
     name: Native build (${{ matrix.target }})
     runs-on: ${{ matrix.os }}

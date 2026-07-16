@@ -28,7 +28,10 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools.packages.find]
 # The two Python components live in their own top-level dirs; point setuptools
 # at them explicitly so flat-layout auto-discovery doesn't trip over core/ etc.
+# Restrict to the real packages so test dirs (and their fixture subdirs, which
+# aren't packages) are never mistaken for distributable packages.
 where = ["pipeline", "rfe-service"]
+include = ["mvs_pipeline*", "rfe_service*"]
 
 [tool.setuptools.package-data]
 # Ship vendored grammar files and the Public Suffix List with the wheel.
