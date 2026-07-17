@@ -8,7 +8,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 import pytest
 
-from mvs_pipeline.collector.http import fetch_bytes, open_stream
+from mvs_pipeline.collector.http import USER_AGENT, fetch_bytes, open_stream
 
 
 class _FlakyHandler(BaseHTTPRequestHandler):
@@ -108,6 +108,37 @@ def test_exhausting_retries_reraises_last_error() -> None:
             fetch_bytes(url, retries=3, backoff_base=0.0, sleep=lambda _: None)
         assert exc.value.code == 503
         assert srv.hits == 4  # 1 initial + 3 retries  # type: ignore[attr-defined]
+    finally:
+        srv.shutdown()
+        thread.join()
+
+
+class _UARecordingHandler(BaseHTTPRequestHandler):
+    """Echo the request's User-Agent so a test can assert what we send."""
+
+    def log_message(self, *args: object) -> None:  # silence test output
+        pass
+
+    def do_GET(self) -> None:
+        ua = self.headers.get("User-Agent", "").encode()
+        self.send_response(200)
+        self.send_header("Content-Length", str(len(ua)))
+        self.end_headers()
+        self.wfile.write(ua)
+
+
+def test_requests_send_descriptive_user_agent() -> None:
+    # Wikimedia 403s the default urllib agent; every request must carry ours.
+    srv = ThreadingHTTPServer(("127.0.0.1", 0), _UARecordingHandler)
+    thread = threading.Thread(target=srv.serve_forever, daemon=True)
+    thread.start()
+    try:
+        url = f"http://127.0.0.1:{srv.server_address[1]}/x"
+        assert fetch_bytes(url).decode() == USER_AGENT
+        resp = open_stream(url)
+        assert resp.read().decode() == USER_AGENT
+        resp.close()
+        assert "urllib" not in USER_AGENT.lower()  # not the blocked default agent
     finally:
         srv.shutdown()
         thread.join()
