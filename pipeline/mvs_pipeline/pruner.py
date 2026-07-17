@@ -48,7 +48,9 @@ def prune(
         )
     total = hits["total_samples"]
     hitmap = hits["hits"]
-    protected = overrides_mod.protected_nodes(overrides)
+    protected = _expand_protection(
+        ast, overrides_mod.protected_nodes(overrides), hitmap, total, threshold
+    )
 
     pruned = [
         nid
@@ -75,6 +77,96 @@ def _usage(hits: int, total_samples: int) -> float:
     if total_samples <= 0:
         return 0.0
     return hits / total_samples
+
+
+def _subtree(nodes: dict[str, Any], root: str) -> set[str]:
+    """Every node id in the subtree rooted at ``root`` (inclusive)."""
+    seen: set[str] = set()
+    stack = [root]
+    while stack:
+        nid = stack.pop()
+        if nid in seen:
+            continue
+        seen.add(nid)
+        stack.extend(nodes[nid].get("children", []))
+    return seen
+
+
+def _expand_protection(
+    ast: dict[str, Any],
+    protected: set[str],
+    hitmap: dict[str, int],
+    total: int,
+    threshold: float,
+) -> set[str]:
+    """Grow an explicit protected set into one that actually *renders*.
+
+    Protecting a single rule node is not enough: the code generator drops a rule
+    whose whole body pruned away, and would emit a dangling reference to a rule it
+    kept but whose definition pruned. So a protected feature that is rare enough to
+    have an empty body (userinfo, IP-literal on a page-URL corpus) still vanishes.
+
+    This expands the set so protected features survive end to end:
+
+    * **Downward** — keep each protected node's subtree, then follow references.
+      A referenced rule that would otherwise be pruned (below ``threshold``) is
+      force-kept in full, recursively, so the feature's sub-grammar renders with
+      no dangling reference. A rule that survives on its own usage is left to
+      normal pruning, so shared leaf rules (``sub-delims``, ``unreserved``) are
+      not broadened.
+    * **Upward** — for each explicitly protected *rule*, keep every reference to
+      it plus the wrapper/separator nodes up to the containing rule, so the
+      feature reappears in context (e.g. ``userinfo`` back in
+      ``authority = [ userinfo "@" ] host [ ":" port ]``).
+    """
+    nodes = ast["nodes"]
+    rule_by_name = {
+        n["name"]: nid for nid, n in nodes.items() if n.get("kind") == "rule" and "name" in n
+    }
+    # The registry may protect nodes from other grammars; keep only ours.
+    protected = {pid for pid in protected if pid in nodes}
+    keep: set[str] = set()
+    for pid in protected:
+        keep |= _subtree(nodes, pid)
+
+    # Downward: force-keep below-threshold rules reachable by reference.
+    changed = True
+    while changed:
+        changed = False
+        for nid in list(keep):
+            node = nodes[nid]
+            if node.get("kind") != "reference":
+                continue
+            target = rule_by_name.get(node.get("name"))
+            if target is None or target in keep:
+                continue
+            if _usage(hitmap.get(target, 0), total) < threshold:
+                keep |= _subtree(nodes, target)
+                changed = True
+
+    # Upward: reattach each protected rule to the rules that reference it.
+    parent = {c: nid for nid, node in nodes.items() for c in node.get("children", [])}
+    protected_rule_names = {
+        nodes[p]["name"] for p in protected if nodes[p].get("kind") == "rule" and "name" in nodes[p]
+    }
+    for nid, node in nodes.items():
+        if node.get("kind") != "reference" or node.get("name") not in protected_rule_names:
+            continue
+        cur = nid
+        keep.add(cur)
+        while cur in parent:
+            p = parent[cur]
+            if nodes[p].get("kind") == "rule":
+                break
+            keep.add(p)
+            # Keep literal separators sitting beside the reference in a sequence
+            # (the "@" in [ userinfo "@" ]) so the context renders faithfully.
+            if nodes[p].get("kind") == "sequence":
+                for sib in nodes[p].get("children", []):
+                    if nodes[sib].get("kind") == "terminal":
+                        keep.add(sib)
+            cur = p
+    return keep
 
 
 def _main(argv: list[str] | None = None) -> int:

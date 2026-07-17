@@ -115,3 +115,30 @@
   * Run the user's dataset against the *Full RFC AST* (not the MVS).
   * Generate a report: Does this dataset provide enough hits to push a pruned node over the `MIN_USAGE_PERCENTAGE` threshold?
   * If yes, automatically open a PR modifying `overrides.yaml` with the new data as justification.
+
+---
+
+## Open Investigations (backlog)
+**Goal:** Ideas surfaced from real runs that are worth doing but not yet scoped into a phase.
+
+### INV-1: Feature-usage reporting in the reference implementation
+* **Context:** A corpus can never exercise every valid-but-rare feature (userinfo,
+  IPv6 literals) — those are kept by the Criticality Override Registry rather than
+  by observed hits. It would be valuable for a generated reference parser to
+  *report* which such features it actually exercised in production, closing the
+  loop back to the registry (promote/retire overrides from live evidence).
+* **Open questions / why it's parked:** likely non-trivial — the emitted parser
+  would need lightweight, low-overhead instrumentation (which MVS nodes fired)
+  and a way to aggregate it safely without leaking parsed content. Investigate
+  feasibility and overhead before committing to a phase.
+
+### INV-2: Protection depth for structural machinery of a kept feature
+* **Context:** Transitive protection (Task 3.1) keeps a protected rule's subtree
+  and force-keeps *below-threshold* rules it reaches, so features like `IP-literal`
+  render fully. But a reachable rule that has some incidental usage above the
+  threshold (e.g. `dec-octet` on a corpus where octets happen to cluster) is left
+  to normal pruning and can render *narrower* than the RFC (accepting only part of
+  0–255). Harmless on a real page-URL corpus (those rules sit far below threshold
+  and are force-kept in full), but worth a decision: should a protected feature's
+  private machinery always be kept in full regardless of incidental usage?
+

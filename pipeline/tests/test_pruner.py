@@ -114,3 +114,59 @@ def test_protected_node_never_pruned_in_committed_uri():
     protected = overrides_mod.protected_nodes(overrides)
     pruned = set(json.loads((ARTIFACTS / "rfc3986-uri.pruned.json").read_text())["pruned"])
     assert not (protected & pruned), "a protected node was pruned"
+
+
+# --- transitive protection renders zero-usage security features -------------- #
+
+
+def _refs_in(text: str) -> tuple[set[str], set[str]]:
+    """Return (defined rule names, referenced rule names) for ABNF ``text``."""
+    from mvs_pipeline import abnf
+
+    rules = abnf.parse_rules(text)
+    defined = {r.name for r in rules}
+    used: set[str] = set()
+
+    def walk(e: object) -> None:
+        if e.kind == "reference":  # type: ignore[attr-defined]
+            used.add(e.name)  # type: ignore[attr-defined]
+        for c in e.children or []:  # type: ignore[attr-defined]
+            walk(c)
+
+    for r in rules:
+        walk(r.body)
+    return defined, used
+
+
+def test_transitive_protection_renders_zero_usage_features():
+    from mvs_pipeline import codegen
+
+    ast = load_document(ARTIFACTS / "rfc3986-uri.ast.json")
+    hits = load_document(ARTIFACTS / "rfc3986-uri.hits.json")
+    # Zero out every hit for the IP-host / userinfo machinery so ONLY the override
+    # (via transitive protection) can keep them — mimics a real page-URL corpus.
+    rare = {"userinfo", "IP-literal", "IPv6address", "IPvFuture", "IPv4address", "h16", "ls32"}
+    hm = {nid: c for nid, c in hits["hits"].items() if ast["nodes"][nid]["name"] not in rare}
+    hits = {**hits, "hits": hm}
+
+    doc = pruner.prune(ast, hits, overrides_mod.load_overrides(), surviving_grammar="mvs/x.abnf")
+    text = codegen.generate(ast, doc)
+    defined, used = _refs_in(text)
+
+    # The protected features render, and IPvFuture rides in transitively via IP-literal.
+    for feat in ("userinfo", "IP-literal", "IPv6address", "IPv4address", "IPvFuture"):
+        assert feat in defined, f"{feat} missing from MVS"
+    # …in context, not as orphan rules.
+    authority = next(ln for ln in text.splitlines() if ln.startswith("authority "))
+    host = next(ln for ln in text.splitlines() if ln.startswith("host "))
+    assert "userinfo" in authority and "port" in authority
+    assert "IP-literal" in host and "IPv4address" in host
+    # No dangling references: every referenced rule is defined.
+    assert not (used - defined), f"dangling references: {used - defined}"
+
+    # Negative control: with an empty registry the same corpus drops them entirely,
+    # proving it is the override — not residual usage — that keeps them.
+    empty = {"schema_version": 1, "overrides": {}}
+    bare = codegen.generate(ast, pruner.prune(ast, hits, empty, surviving_grammar="mvs/x.abnf"))
+    bare_defined, _ = _refs_in(bare)
+    assert not ({"userinfo", "IP-literal", "IPv6address"} & bare_defined)
