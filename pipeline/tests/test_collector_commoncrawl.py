@@ -12,8 +12,36 @@ from mvs_pipeline.collector import (
     CommonCrawlUrlIndex,
     Source,
     keep_sample,
+    resolve_index_paths,
     stable_fraction,
 )
+
+# A miniature cc-index-table.paths listing, one line per parquet key, across the
+# three real subsets. from_crawl() resolves exactly this into s3:// paths.
+_MANIFEST = "\n".join(
+    [
+        "cc-index/table/cc-main/warc/crawl=CC-MAIN-2024-10/subset=crawldiagnostics/part-00000.parquet",
+        "cc-index/table/cc-main/warc/crawl=CC-MAIN-2024-10/subset=robotstxt/part-00000.parquet",
+        "cc-index/table/cc-main/warc/crawl=CC-MAIN-2024-10/subset=warc/part-00000.parquet",
+        "cc-index/table/cc-main/warc/crawl=CC-MAIN-2024-10/subset=warc/part-00001.parquet",
+        "",  # blank line tolerated
+    ]
+)
+
+
+def test_resolve_index_paths_keeps_only_warc_subset() -> None:
+    paths = resolve_index_paths(_MANIFEST)
+    assert paths == [
+        "s3://commoncrawl/cc-index/table/cc-main/warc/crawl=CC-MAIN-2024-10/subset=warc/part-00000.parquet",
+        "s3://commoncrawl/cc-index/table/cc-main/warc/crawl=CC-MAIN-2024-10/subset=warc/part-00001.parquet",
+    ]
+
+
+def test_resolve_index_paths_limit_and_subset() -> None:
+    assert len(resolve_index_paths(_MANIFEST, limit=1)) == 1
+    # A different subset selects other files; None keeps all parquet paths.
+    assert len(resolve_index_paths(_MANIFEST, subset="robotstxt")) == 1
+    assert len(resolve_index_paths(_MANIFEST, subset=None)) == 4
 
 
 def _write_cc_index(path: Path, urls: list[str]) -> None:

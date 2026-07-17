@@ -6,11 +6,15 @@ shared `Source` protocol and deterministic sampling used across them. See
 """
 
 from mvs_pipeline.collector.base import Source, keep_sample, stable_fraction
-from mvs_pipeline.collector.commoncrawl import CommonCrawlUrlIndex
+from mvs_pipeline.collector.commoncrawl import CommonCrawlUrlIndex, resolve_index_paths
 from mvs_pipeline.collector.dedup import dedupe_and_cap
 from mvs_pipeline.collector.filelist import FileListSource
 from mvs_pipeline.collector.normalize import host_of, normalize_uri
-from mvs_pipeline.collector.orchestrate import binary_telemetry_runner, run_collection
+from mvs_pipeline.collector.orchestrate import (
+    binary_telemetry_runner,
+    parse_stratum_spec,
+    run_collection,
+)
 from mvs_pipeline.collector.psl import registrable_domain
 from mvs_pipeline.collector.sampler import Stratum, allocate_quotas, stratified_sample
 from mvs_pipeline.collector.wat import CommonCrawlWat
@@ -29,7 +33,9 @@ __all__ = [
     "host_of",
     "keep_sample",
     "normalize_uri",
+    "parse_stratum_spec",
     "registrable_domain",
+    "resolve_index_paths",
     "run_collection",
     "stable_fraction",
     "stratified_sample",

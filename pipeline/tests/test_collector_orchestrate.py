@@ -21,6 +21,7 @@ from mvs_pipeline import schema
 from mvs_pipeline.collector.filelist import FileListSource
 from mvs_pipeline.collector.orchestrate import (
     binary_telemetry_runner,
+    parse_stratum_spec,
     run_collection,
     telemetry_argv,
 )
@@ -53,6 +54,77 @@ def test_argv_includes_bounds() -> None:
     # Bounds can be disabled explicitly.
     bare = telemetry_argv("b", "a", "c", "o", max_depth=None, max_input_bytes=None)
     assert "--max-depth" not in bare and "--max-input-bytes" not in bare
+
+
+def test_parse_stratum_spec() -> None:
+    assert parse_stratum_spec("pages=0.8:corpus/seed.txt") == ("pages", 0.8, "corpus/seed.txt")
+    # A Windows-y path with a drive colon still splits on the first ':' only once
+    # after NAME=WEIGHT, so paths may contain colons.
+    assert parse_stratum_spec("x=1:a/b:c") == ("x", 1.0, "a/b:c")
+
+
+@pytest.mark.parametrize("bad", ["noweight:path", "n=x:path", "n=1", "=1:p", "n=1:"])
+def test_parse_stratum_spec_rejects_malformed(bad: str) -> None:
+    with pytest.raises(ValueError):
+        parse_stratum_spec(bad)
+
+
+def test_cli_runs_over_file_lists(tmp_path: Path) -> None:
+    # The --list path builds FileListSource strata and runs end-to-end with a
+    # binary-free run by pointing --binary at a stub that emits valid hits.
+    from mvs_pipeline.collector.orchestrate import _main
+
+    stub = tmp_path / "stub-telemetry"
+    stub.write_text(
+        "#!/usr/bin/env python3\n"
+        "import sys\n"
+        "a = sys.argv\n"
+        "corpus = a[a.index('--corpus') + 1]\n"
+        "out = a[a.index('--out') + 1]\n"
+        "n = sum(1 for ln in open(corpus) if ln.strip())\n"
+        'open(out, \'w\').write(\'{"schema_version":1,"grammar":"rfc3986-uri",\'\n'
+        '                     f\'"total_samples":{n},"hits":{{}}}}\')\n'
+    )
+    stub.chmod(0o755)
+
+    rc = _main(
+        [
+            "--ast",
+            str(AST),
+            "--list",
+            f"pages=1.0:{FIXTURES / 'seed_uris.txt'}",
+            "--target",
+            "300",
+            "--workdir",
+            str(tmp_path / "w"),
+            "--out",
+            str(tmp_path / "o"),
+            "--binary",
+            str(stub),
+        ]
+    )
+    assert rc == 0
+    hits = json.loads((tmp_path / "o" / "hits.json").read_text())
+    schema.validate("hits", hits)
+    assert hits["total_samples"] == 300
+
+
+def test_cli_requires_a_source(tmp_path: Path) -> None:
+    from mvs_pipeline.collector.orchestrate import _main
+
+    with pytest.raises(SystemExit):
+        _main(
+            [
+                "--ast",
+                str(AST),
+                "--target",
+                "10",
+                "--workdir",
+                str(tmp_path / "w"),
+                "--out",
+                str(tmp_path / "o"),
+            ]
+        )
 
 
 def test_end_to_end_wiring(tmp_path: Path) -> None:
