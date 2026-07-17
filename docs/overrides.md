@@ -50,7 +50,12 @@ it matters more than its hit rate suggests. That claim must be written down:
 ## How it is used
 
 - **Phase 3 (pruner):** reads `overrides.yaml`; a node that is below threshold
-  **and** protected is kept, not pruned.
+  **and** protected is kept, not pruned. Protection is **transitive**: protecting
+  a rule also keeps the sub-grammar it needs to render (so a zero-usage feature
+  like `userinfo` does not collapse to an empty body) and re-attaches it to the
+  rules that reference it (so it reappears *in context*, e.g. `userinfo` back in
+  `authority = [ userinfo "@" ] host [ ":" port ]`), with no dangling references.
+  You therefore protect the **rule you care about**, not every structural node.
 - **Phase 5 (RFE):** when a consumer submits evidence that a pruned node is
   needed in their domain, the telemetry re-run can open a PR adding a justified
   entry here — the same requirements apply to machine-proposed overrides.

@@ -74,12 +74,21 @@ overrides:
       to correctly identify loopback/link-local/unique-local hosts for SSRF and
       access-control decisions, despite near-zero frequency in crawled page URLs.
     owner: security-wg
-  # NOTE: IPvFuture (rfc3986-uri:IPvFuture#2294e31a) is deliberately NOT protected.
-  # It has zero corpus presence and no defined address version, so its entire body
-  # subtree prunes away; protecting only the rule node would emit an empty rule.
-  # Reinstating it would mean protecting its whole (dead) subtree — override debt
-  # that its forward-compatibility rationale does not currently clear. IP-literal
-  # keeps the "[" ... "]" bracket form for the live IPv6 case.
+  # IPv4 literal hosts (http://127.0.0.1/, http://169.254.169.254/) are the most
+  # common SSRF vector, yet appear in well under 0.1% of crawled page URLs. Protect
+  # so the full dec-octet machinery (0-255) survives and `host` keeps its IPv4
+  # branch; a narrowed dec-octet would silently accept only some octet ranges.
+  "rfc3986-uri:IPv4address#d1e871a6":
+    protected: true
+    justification: >-
+      Security-critical: IPv4 literal authorities are the primary SSRF target
+      (127.0.0.1, 169.254.169.254, 10.x). Protect so the address and its
+      dec-octet range (0-255) survive pruning even at near-zero corpus frequency.
+    owner: security-wg
+  # NOTE: IPvFuture is intentionally not listed. Protecting IP-literal pulls it back
+  # transitively (IP-literal = "[" ( IPv6address / IPvFuture ) "]"), so it renders
+  # via the reference-reachability closure without an explicit, hard-to-justify
+  # override of a form that has no defined address version yet.
 
   # Fragments are never sent to the server, so server-side crawl corpora
   # systematically under-count them, yet they carry client-side routing (SPA
