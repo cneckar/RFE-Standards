@@ -151,6 +151,25 @@ def test_end_to_end_wiring(tmp_path: Path) -> None:
     assert hits["provenance"]["timestamp"] == "2026-01-01T00:00:00Z"
 
 
+def test_progress_callback_receives_phase_lines(tmp_path: Path) -> None:
+    lines: list[str] = []
+    run_collection(
+        _strata(),
+        AST,
+        target_n=200,
+        workdir=tmp_path / "w",
+        out_dir=tmp_path / "o",
+        seed=1,
+        telemetry_runner=_fake_runner,
+        progress=lines.append,
+    )
+    joined = "\n".join(lines)
+    assert "sampling" in joined  # opening phase
+    assert "corpus:" in joined  # after sampling
+    assert "telemetry shard 1/" in joined  # per-shard
+    assert any("kept" in ln for ln in lines)  # per-stratum result
+
+
 def test_end_to_end_is_reproducible(tmp_path: Path) -> None:
     a = run_collection(
         _strata(),

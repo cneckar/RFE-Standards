@@ -104,15 +104,23 @@ def run_collection(
     max_depth: int | None = DEFAULT_MAX_DEPTH,
     max_input_bytes: int | None = DEFAULT_MAX_INPUT_BYTES,
     timestamp: str | None = None,
+    progress: Callable[[str], None] | None = None,
 ) -> dict[str, Any]:
     """Run the full sources → shards → telemetry → merged hits.json pipeline.
 
     Returns a summary dict with the sample result, the merged ``hits.json`` path,
     and per-shard totals. The merged hits are schema-validated and stamped with
-    provenance derived from the corpus manifest.
+    provenance derived from the corpus manifest. ``progress`` (optional) receives
+    human-readable status lines for each phase; ``None`` is silent.
     """
+
+    def _note(msg: str) -> None:
+        if progress is not None:
+            progress(msg)
+
     out = Path(out_dir)
     corpus_dir = out / "corpus"
+    _note(f"sampling {len(strata)} stratum(s) → target {target_n:,} URIs")
     sample: SampleResult = stratified_sample(
         strata,
         target_n=target_n,
@@ -122,7 +130,9 @@ def run_collection(
         domain_cap=domain_cap,
         num_shards=num_shards,
         num_output_shards=num_output_shards,
+        progress=progress,
     )
+    _note(f"corpus: {sample.total_written:,} URIs across {len(sample.shards)} shard(s)")
 
     runner = telemetry_runner or binary_telemetry_runner(
         ast_path, binary=binary, max_depth=max_depth, max_input_bytes=max_input_bytes
@@ -131,9 +141,11 @@ def run_collection(
     from mvs_pipeline.hitsmerge import merge_hits
 
     shard_hits: list[dict[str, Any]] = []
-    for shard_name in sample.shards:
+    for n, shard_name in enumerate(sample.shards, start=1):
+        _note(f"telemetry shard {n}/{len(sample.shards)}")
         shard_hits.append(runner(corpus_dir / Path(shard_name).name))
 
+    _note("merging shard hits + stamping provenance")
     manifest = json.loads((corpus_dir / "manifest.json").read_text())
     provenance = provenance_from_manifest(
         manifest, manifest_ref=str(corpus_dir / "manifest.json"), timestamp=timestamp
@@ -244,6 +256,11 @@ def _main(argv: list[str] | None = None) -> int:
     parser.add_argument("--timestamp", default=None)
     args = parser.parse_args(argv)
 
+    import sys
+
+    def _progress(msg: str) -> None:
+        print(msg, file=sys.stderr, flush=True)
+
     strata: list[Stratum] = []
     try:
         for spec in args.list:
@@ -260,6 +277,9 @@ def _main(argv: list[str] | None = None) -> int:
     except ValueError as exc:
         parser.error(str(exc))
     if args.cc_crawl:
+        _progress(
+            f"resolving {args.cc_crawl} cc-index ({args.cc_subset} subset, {args.cc_transport})…"
+        )
         cc = CommonCrawlUrlIndex.from_crawl(
             args.cc_crawl,
             subset=args.cc_subset,
@@ -268,6 +288,7 @@ def _main(argv: list[str] | None = None) -> int:
             sample_rate=args.cc_sample_rate,
             seed=args.seed,
         )
+        _progress(f"cc-index: {len(cc.paths):,} parquet file(s) to read")
         strata.append(Stratum(cc, args.cc_weight, name="cc-index"))
     if not strata:
         parser.error("provide at least one source (--list / --wat / --wiki / --cc-crawl)")
@@ -284,6 +305,7 @@ def _main(argv: list[str] | None = None) -> int:
         max_depth=args.max_depth,
         max_input_bytes=args.max_input_bytes,
         timestamp=args.timestamp,
+        progress=_progress,
     )
     print(
         f"grammar={summary['grammar']} corpus={summary['total_written']} "
