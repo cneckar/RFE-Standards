@@ -247,6 +247,28 @@ def _main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--cc-sample-rate", type=float, default=1.0, help="fraction of cc-index URLs to keep"
     )
+    parser.add_argument(
+        "--wat-crawl",
+        default=None,
+        metavar="CRAWL_ID",
+        help="stream a crawl's WAT outlinks over HTTPS (scheme-diverse links)",
+    )
+    parser.add_argument("--wat-weight", type=float, default=0.2, help="weight of --wat-crawl")
+    parser.add_argument("--wat-limit", type=int, default=None, help="max WAT files to read")
+    parser.add_argument(
+        "--wat-sample-rate", type=float, default=1.0, help="fraction of WAT links to keep"
+    )
+    parser.add_argument(
+        "--wiki-dump",
+        default=None,
+        metavar="WIKI",
+        help="stream a Wikipedia externallinks dump over HTTPS, e.g. enwiki",
+    )
+    parser.add_argument("--wiki-date", default="latest", help="dump date (default: latest)")
+    parser.add_argument("--wiki-weight", type=float, default=0.1, help="weight of --wiki-dump")
+    parser.add_argument(
+        "--wiki-sample-rate", type=float, default=1.0, help="fraction of Wikipedia URLs to keep"
+    )
     parser.add_argument("--target", type=int, required=True, help="target corpus size N")
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--domain-cap", type=int, default=1000)
@@ -292,8 +314,30 @@ def _main(argv: list[str] | None = None) -> int:
         )
         _progress(f"cc-index: {len(cc.paths):,} parquet file(s) to read")
         strata.append(Stratum(cc, args.cc_weight, name="cc-index"))
+    if args.wat_crawl:
+        _progress(f"resolving {args.wat_crawl} WAT files…")
+        wat = CommonCrawlWat.from_crawl(
+            args.wat_crawl,
+            limit=args.wat_limit,
+            sample_rate=args.wat_sample_rate,
+            seed=args.seed,
+        )
+        _progress(f"wat: {len(wat.paths):,} WAT file(s) to read")
+        strata.append(Stratum(wat, args.wat_weight, name="cc-outlinks"))
+    if args.wiki_dump:
+        wiki = WikipediaExternalLinks.from_dump(
+            args.wiki_dump,
+            date=args.wiki_date,
+            sample_rate=args.wiki_sample_rate,
+            seed=args.seed,
+        )
+        _progress(f"wikipedia: streaming {args.wiki_dump}-{args.wiki_date} externallinks dump")
+        strata.append(Stratum(wiki, args.wiki_weight, name="wikipedia"))
     if not strata:
-        parser.error("provide at least one source (--list / --wat / --wiki / --cc-crawl)")
+        parser.error(
+            "provide at least one source "
+            "(--list / --wat / --wiki / --cc-crawl / --wat-crawl / --wiki-dump)"
+        )
 
     summary = run_collection(
         strata,

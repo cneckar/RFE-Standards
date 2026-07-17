@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 import gzip
+import threading
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
+from mvs_pipeline.collector import dump_url
 from mvs_pipeline.collector.wikipedia import (
     WikipediaExternalLinks,
     iter_external_urls,
@@ -75,3 +78,52 @@ def test_sampling_is_deterministic_and_bounded(tmp_path: Path) -> None:
 def test_null_and_numeric_fields_are_not_urls() -> None:
     line = "INSERT INTO `externallinks` VALUES (1,2,NULL,'x','y'),(3,4,'https://ok.test/','x','y');"
     assert list(iter_external_urls(iter([line]))) == ["https://ok.test/"]
+
+
+def test_dump_url_shape() -> None:
+    assert dump_url("enwiki") == (
+        "https://dumps.wikimedia.org/enwiki/latest/enwiki-latest-externallinks.sql.gz"
+    )
+    assert dump_url("dewiki", "20240101", host="https://mirror.test") == (
+        "https://mirror.test/dewiki/20240101/dewiki-20240101-externallinks.sql.gz"
+    )
+
+
+class _GzipFileHandler(BaseHTTPRequestHandler):
+    """Serve a single in-memory gzip dump body sequentially (like the dumps host)."""
+
+    def log_message(self, *args: object) -> None:  # silence test output
+        pass
+
+    def do_GET(self) -> None:
+        data: bytes = self.server.data  # type: ignore[attr-defined]
+        self.send_response(200)
+        self.send_header("Content-Length", str(len(data)))
+        self.end_headers()
+        self.wfile.write(data)
+
+
+def test_connector_streams_gzip_dump_over_http() -> None:
+    # The HTTPS path gunzips the sequential dump on the fly; the dump date and
+    # the http(s) URL both survive into provenance (Path would mangle the URL).
+    body = gzip.compress((_LINE + "\n").encode("utf-8"))
+    server = ThreadingHTTPServer(("127.0.0.1", 0), _GzipFileHandler)
+    server.data = body  # type: ignore[attr-defined]
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        url = f"http://127.0.0.1:{server.server_address[1]}/enwiki-20240101-externallinks.sql.gz"
+        src = WikipediaExternalLinks([url])
+        urls = list(src.iter_uris())
+        assert urls == [
+            "https://example.com/a",
+            "mailto:hi@example.org",
+            "ftp://files.test/x",
+            "https://a.test/it's escaped",
+        ]
+        prov = src.provenance()
+        assert prov["dump_dates"] == ["20240101"]
+        assert prov["files_read"] == [url]
+    finally:
+        server.shutdown()
+        thread.join()

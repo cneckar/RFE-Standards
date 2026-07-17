@@ -17,8 +17,8 @@ from mvs_pipeline.collector.orchestrate import (
 )
 from mvs_pipeline.collector.psl import registrable_domain
 from mvs_pipeline.collector.sampler import Stratum, allocate_quotas, stratified_sample
-from mvs_pipeline.collector.wat import CommonCrawlWat
-from mvs_pipeline.collector.wikipedia import WikipediaExternalLinks
+from mvs_pipeline.collector.wat import CommonCrawlWat, resolve_wat_paths
+from mvs_pipeline.collector.wikipedia import WikipediaExternalLinks, dump_url
 
 __all__ = [
     "CommonCrawlUrlIndex",
@@ -30,12 +30,14 @@ __all__ = [
     "allocate_quotas",
     "binary_telemetry_runner",
     "dedupe_and_cap",
+    "dump_url",
     "host_of",
     "keep_sample",
     "normalize_uri",
     "parse_stratum_spec",
     "registrable_domain",
     "resolve_index_paths",
+    "resolve_wat_paths",
     "run_collection",
     "stable_fraction",
     "stratified_sample",
