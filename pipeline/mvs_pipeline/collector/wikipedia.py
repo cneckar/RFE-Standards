@@ -21,12 +21,12 @@ from __future__ import annotations
 import gzip
 import io
 import re
-import urllib.request
 from collections.abc import Iterator, Sequence
 from pathlib import Path
 from typing import Any
 
 from mvs_pipeline.collector.base import keep_sample
+from mvs_pipeline.collector.http import open_stream
 
 #: Wikimedia dumps host (free HTTPS, CC BY-SA / GFDL).
 WIKIMEDIA_HOST = "https://dumps.wikimedia.org"
@@ -123,7 +123,7 @@ def _iter_lines(path: str | Path) -> Iterator[str]:
     """
     text = str(path)
     if text.startswith(("http://", "https://")):
-        resp = urllib.request.urlopen(text)  # noqa: S310 (trusted dumps host)
+        resp = open_stream(text)  # retried open; dumps host can be flaky under load
         raw = gzip.GzipFile(fileobj=resp) if text.endswith(".gz") else resp
         yield from io.TextIOWrapper(raw, encoding="utf-8", errors="replace")
         return

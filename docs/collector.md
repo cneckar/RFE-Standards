@@ -89,6 +89,11 @@ python -m mvs_pipeline.collector.orchestrate \
 from `dumps.wikimedia.org` (`--wiki-date` defaults to `latest`). The local-file
 `--wat`/`--wiki NAME=WEIGHT:PATH` forms still work if you'd rather pre-download.
 
+All three HTTPS readers retry transient failures (HTTP 429/5xx, dropped
+connections, stalled sockets) with exponential backoff, honoring `Retry-After`,
+and use a per-request socket timeout. Over a multi-hour 10⁸ run a 503 from the
+mirror is a matter of *when*, not *if* — a single one no longer aborts the job.
+
 `--cc-crawl` reads over HTTPS by default (works anywhere the mirror is
 reachable); pass `--cc-transport s3` to stream from `s3://commoncrawl`
 anonymously instead (e.g. on EC2, for free in-region egress). It defaults to the
