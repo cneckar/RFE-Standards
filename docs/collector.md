@@ -52,9 +52,10 @@ python -m mvs_pipeline.collector.orchestrate \
 ```
 
 **Straight from Common Crawl** — `--cc-crawl` streams the columnar URL index for
-a crawl over anonymous S3 (no AWS credentials, no manual path wrangling). Start
-with `--cc-limit 2` to validate the S3 path in a few minutes, then scale up and
-thin with `--cc-sample-rate`:
+a crawl straight from the public `data.commoncrawl.org` mirror over HTTPS range
+requests — **no AWS credentials, no manual path wrangling**. Start with
+`--cc-limit 2` to validate it in a few minutes, then scale up and thin with
+`--cc-sample-rate`:
 
 ```bash
 python -m mvs_pipeline.collector.orchestrate \
@@ -77,7 +78,10 @@ python -m mvs_pipeline.collector.orchestrate \
   --workdir .work --out out --binary core/target/release/mvs-telemetry
 ```
 
-`--cc-crawl` defaults to the `warc` subset (the page-URL corpus); the
+`--cc-crawl` reads over HTTPS by default (works anywhere the mirror is
+reachable); pass `--cc-transport s3` to stream from `s3://commoncrawl`
+anonymously instead (e.g. on EC2, for free in-region egress). It defaults to the
+`warc` subset (the page-URL corpus); the
 `crawldiagnostics`/`robotstxt` subsets are crawler bookkeeping and are excluded.
 WAT and Wikipedia are read from local files today, so download those first (the
 CC index needs no download — it streams).
