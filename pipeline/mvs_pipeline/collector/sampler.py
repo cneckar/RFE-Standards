@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import heapq
 import json
-from collections.abc import Iterable, Sequence
+from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -112,6 +112,7 @@ def stratified_sample(
     domain_cap: int | None = 1000,
     num_shards: int = 16,
     num_output_shards: int = 4,
+    progress: Callable[[str], None] | None = None,
 ) -> SampleResult:
     """Sample ``strata`` to ``target_n`` URIs; write corpus shards + manifest.
 
@@ -120,6 +121,9 @@ def stratified_sample(
     occurrence wins, in stratum order), then written round-robin to
     ``num_output_shards`` newline corpus files. A ``manifest.json`` capturing the
     seed, quotas, realized counts, and per-source provenance is written too.
+
+    ``progress`` (optional) is called with human-readable status lines as each
+    stratum is read and sampled; ``None`` is silent.
     """
     work = Path(workdir)
     out = Path(out_dir)
@@ -131,11 +135,19 @@ def stratified_sample(
     seen: set[str] = set()
     results: list[StratumResult] = []
     for i, (stratum, target) in enumerate(zip(strata, targets, strict=True)):
+        if progress is not None:
+            progress(f"stratum {i + 1}/{len(strata)} '{stratum.name}': reading (target {target:,})")
+        stratum_progress = (
+            (lambda m, name=stratum.name: progress(f"  [{name}] {m}"))
+            if progress is not None
+            else None
+        )
         deduped = dedupe_and_cap(
             stratum.source.iter_uris(),
             workdir=work / f"stratum-{i:02d}",
             domain_cap=domain_cap,
             num_shards=num_shards,
+            progress=stratum_progress,
         )
         # Per-stratum seed keeps strata from selecting correlated subsets.
         sampled = _bottom_k(deduped, target, seed + i)
@@ -146,6 +158,8 @@ def stratified_sample(
             seen.add(uri)
             combined.append(uri)
             kept += 1
+        if progress is not None:
+            progress(f"stratum '{stratum.name}': kept {kept:,}")
         results.append(
             StratumResult(
                 name=stratum.name,
