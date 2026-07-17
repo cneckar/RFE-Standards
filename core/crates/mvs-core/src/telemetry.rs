@@ -210,9 +210,16 @@ impl Grammar {
     }
 
     /// Like [`Grammar::parse`], but abandon matching once the recursion depth
-    /// exceeds `max_depth`. Because the recognizer descends one frame per matched
-    /// element (including each repetition), this bounds both grammar nesting and
-    /// runaway repetition, preventing stack exhaustion on adversarial input.
+    /// exceeds `max_depth`.
+    ///
+    /// The recognizer descends one frame per matched element, so depth grows
+    /// roughly **linearly with the input length** (each repetition step nests).
+    /// `max_depth` is therefore a bound on *how long an input can be*, not just
+    /// on grammar nesting — set it (and the caller's stack) large enough to
+    /// accept the longest legitimate input, or long-but-valid URLs are recorded
+    /// as non-matches (`depth_exceeded`). Callers cap input length up front
+    /// (`--max-input-bytes`) and run on a deep stack; `max_depth` is the final
+    /// backstop against unbounded recursion.
     pub fn parse_bounded(&self, input: &[u8], max_depth: usize) -> ParseResult {
         let mut m = Matcher {
             grammar: self,
@@ -501,6 +508,44 @@ mod tests {
             "/../../../artifacts/rfc3986-uri.ast.json"
         ));
         serde_json::from_str(json).unwrap()
+    }
+
+    #[test]
+    fn tiny_depth_bound_clips_a_long_but_valid_url() {
+        // A long, perfectly valid URL is rejected purely because the recursion
+        // depth exceeds a small bound — recorded as depth_exceeded, not a plain
+        // non-match. This is the bias the default bound must not introduce.
+        let g = uri_grammar();
+        let url = format!("http://example.com/{}", "a".repeat(4000));
+        let r = g.parse_bounded(url.as_bytes(), 100);
+        assert!(!r.matched);
+        assert!(
+            r.depth_exceeded,
+            "long valid URL clipped by depth, not invalidity"
+        );
+    }
+
+    #[test]
+    fn generous_depth_accepts_a_long_url() {
+        // With a bound sized for the input length (and a deep stack, as the CLI
+        // provides), the same long URL matches. Run on a big stack because the
+        // recognizer recurses ~one frame per input byte.
+        std::thread::Builder::new()
+            .stack_size(256 * 1024 * 1024)
+            .spawn(|| {
+                let g = uri_grammar();
+                let url = format!("http://example.com/{}", "a".repeat(4000));
+                let r = g.parse_bounded(url.as_bytes(), 200_000);
+                assert!(
+                    r.matched,
+                    "long valid URL should match under a generous bound"
+                );
+                assert!(!r.depth_exceeded);
+                assert_eq!(r.consumed, url.len());
+            })
+            .unwrap()
+            .join()
+            .unwrap();
     }
 
     #[test]
