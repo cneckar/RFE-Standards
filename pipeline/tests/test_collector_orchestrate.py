@@ -48,6 +48,24 @@ def _fake_runner(corpus_path: Path) -> dict:
     }
 
 
+def _protected_ids_runner(corpus_path: Path) -> dict:
+    """A runner that credits exactly the override-protected nodes, once each.
+
+    Lets the prune+codegen chain be exercised with a non-empty hit set so the
+    minified grammar keeps the protected rules and drops the rest.
+    """
+    import yaml
+
+    reg = yaml.safe_load((Path(__file__).resolve().parents[2] / "overrides.yaml").read_text())
+    n = sum(1 for ln in corpus_path.read_text().splitlines() if ln.strip())
+    return {
+        "schema_version": 1,
+        "grammar": "rfc3986-uri",
+        "total_samples": n,
+        "hits": {nid: n for nid, rec in reg["overrides"].items() if rec.get("protected")},
+    }
+
+
 def test_argv_includes_bounds() -> None:
     argv = telemetry_argv("mvs-telemetry", "a.json", "c.txt", "o.json")
     assert "--max-depth" in argv and "--max-input-bytes" in argv
@@ -210,6 +228,98 @@ def test_domain_cap_curbs_mega_site(tmp_path: Path) -> None:
         all_uris += [ln for ln in p.read_text().splitlines() if ln]
     mega = [u for u in all_uris if "mega.example" in u]
     assert len(mega) <= 20
+
+
+def test_emit_mvs_chains_prune_and_codegen(tmp_path: Path) -> None:
+    # One call: sources → hits → prune → minified grammar. The runner credits
+    # only the override-protected nodes, so pruning drops the rest and the
+    # generated ABNF is non-empty and mentions the surviving grammar name.
+    mvs_out = tmp_path / "mvs.abnf"
+    pruned_out = tmp_path / "pruned.json"
+    summary = run_collection(
+        _strata(),
+        AST,
+        target_n=300,
+        workdir=tmp_path / "w",
+        out_dir=tmp_path / "o",
+        seed=5,
+        telemetry_runner=_protected_ids_runner,
+        emit_mvs=mvs_out,
+        pruned_out=pruned_out,
+    )
+    assert summary["mvs_path"] == str(mvs_out)
+    assert summary["kept_nodes"] > 0
+    assert summary["pruned_count"] > 0
+    # The pruned doc validates and inherited the corpus provenance from hits.
+    pruned = json.loads(pruned_out.read_text())
+    schema.validate("pruned", pruned)
+    assert pruned["surviving_grammar"] == "rfc3986-uri-mvs"
+    assert pruned["provenance"]["seed"] == 5
+    text = mvs_out.read_text()
+    assert text.strip()  # a real grammar came out
+    assert "generated" in text  # the header
+
+
+def test_emit_mvs_cli_end_to_end(tmp_path: Path) -> None:
+    from mvs_pipeline.collector.orchestrate import _main
+
+    stub = tmp_path / "stub-telemetry"
+    stub.write_text(
+        "#!/usr/bin/env python3\n"
+        "import sys\n"
+        "a = sys.argv\n"
+        "corpus = a[a.index('--corpus') + 1]\n"
+        "out = a[a.index('--out') + 1]\n"
+        "n = sum(1 for ln in open(corpus) if ln.strip())\n"
+        'open(out, \'w\').write(\'{"schema_version":1,"grammar":"rfc3986-uri",\'\n'
+        '                     f\'"total_samples":{n},"hits":{{}}}}\')\n'
+    )
+    stub.chmod(0o755)
+    mvs_out = tmp_path / "mvs.abnf"
+    rc = _main(
+        [
+            "--ast",
+            str(AST),
+            "--list",
+            f"pages=1.0:{FIXTURES / 'seed_uris.txt'}",
+            "--target",
+            "300",
+            "--workdir",
+            str(tmp_path / "w"),
+            "--out",
+            str(tmp_path / "o"),
+            "--binary",
+            str(stub),
+            "--emit-mvs",
+            str(mvs_out),
+        ]
+    )
+    assert rc == 0
+    # Empty hit set → everything below threshold is pruned except protected nodes,
+    # so the grammar still generates (and the file exists) without error.
+    assert mvs_out.exists()
+
+
+def test_pruned_out_requires_emit_mvs(tmp_path: Path) -> None:
+    from mvs_pipeline.collector.orchestrate import _main
+
+    with pytest.raises(SystemExit):
+        _main(
+            [
+                "--ast",
+                str(AST),
+                "--list",
+                f"pages=1.0:{FIXTURES / 'seed_uris.txt'}",
+                "--target",
+                "10",
+                "--workdir",
+                str(tmp_path / "w"),
+                "--out",
+                str(tmp_path / "o"),
+                "--pruned-out",
+                str(tmp_path / "p.json"),
+            ]
+        )
 
 
 def _find_binary() -> str | None:

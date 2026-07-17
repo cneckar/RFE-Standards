@@ -107,6 +107,12 @@ def run_collection(
     max_depth: int | None = DEFAULT_MAX_DEPTH,
     max_input_bytes: int | None = DEFAULT_MAX_INPUT_BYTES,
     timestamp: str | None = None,
+    emit_mvs: str | Path | None = None,
+    pruned_out: str | Path | None = None,
+    threshold: float | None = None,
+    overrides_path: str | Path | None = None,
+    surviving_grammar: str | None = None,
+    mvs_format: str | None = None,
     progress: Callable[[str], None] | None = None,
 ) -> dict[str, Any]:
     """Run the full sources → shards → telemetry → merged hits.json pipeline.
@@ -115,6 +121,13 @@ def run_collection(
     and per-shard totals. The merged hits are schema-validated and stamped with
     provenance derived from the corpus manifest. ``progress`` (optional) receives
     human-readable status lines for each phase; ``None`` is silent.
+
+    When ``emit_mvs`` is set the run continues straight into Phase 3/4 on the
+    freshly-stamped hits: prune the AST at ``threshold`` (honoring the override
+    registry) and code-generate the minified grammar to ``emit_mvs`` — one command
+    from raw sources to a validated MVS. The pruned document (which carries the
+    corpus provenance) is written to ``pruned_out`` when given. ``surviving_grammar``
+    defaults to ``<grammar>-mvs`` and ``mvs_format`` is auto-detected.
     """
 
     def _note(msg: str) -> None:
@@ -161,7 +174,7 @@ def run_collection(
     hits_path = out / "hits.json"
     hits_path.write_text(json.dumps(merged, indent=2, sort_keys=True) + "\n")
 
-    return {
+    summary: dict[str, Any] = {
         "hits_path": str(hits_path),
         "corpus_dir": str(corpus_dir),
         "manifest": str(corpus_dir / "manifest.json"),
@@ -170,6 +183,73 @@ def run_collection(
         "shards": len(sample.shards),
         "grammar": merged["grammar"],
     }
+
+    if emit_mvs is not None:
+        summary.update(
+            _emit_mvs(
+                ast_path,
+                merged,
+                threshold=threshold,
+                overrides_path=overrides_path,
+                surviving_grammar=surviving_grammar,
+                mvs_out=emit_mvs,
+                pruned_out=pruned_out,
+                fmt=mvs_format,
+                note=_note,
+            )
+        )
+    return summary
+
+
+def _emit_mvs(
+    ast_path: str | Path,
+    hits: dict[str, Any],
+    *,
+    threshold: float | None,
+    overrides_path: str | Path | None,
+    surviving_grammar: str | None,
+    mvs_out: str | Path,
+    pruned_out: str | Path | None,
+    fmt: str | None,
+    note: Callable[[str], None],
+) -> dict[str, Any]:
+    """Prune ``hits`` against the AST and code-generate the minified grammar.
+
+    The Phase-3/4 tail of a one-command run: load the AST, prune every node below
+    ``threshold`` that the override registry does not protect, then unparse the
+    survivors to ``mvs_out``. The pruned document (carrying corpus provenance) is
+    written to ``pruned_out`` when given. Returns the paths and counts to fold into
+    the run summary.
+    """
+    from mvs_pipeline import codegen, pruner
+    from mvs_pipeline import overrides as overrides_mod
+    from mvs_pipeline.schema import load_document
+
+    ast = load_document(ast_path)
+    overrides = overrides_mod.load_overrides(overrides_path)
+    resolved_threshold = pruner.MIN_USAGE_PERCENTAGE if threshold is None else threshold
+    surviving = surviving_grammar or f"{ast['grammar']}-mvs"
+    note(f"pruning at threshold {resolved_threshold} (surviving grammar {surviving!r})")
+    pruned_doc = pruner.prune(
+        ast, hits, overrides, threshold=resolved_threshold, surviving_grammar=surviving
+    )
+    kept = len(ast["nodes"]) - len(pruned_doc["pruned"])
+
+    mvs_path = Path(mvs_out)
+    mvs_path.parent.mkdir(parents=True, exist_ok=True)
+    mvs_path.write_text(codegen.generate(ast, pruned_doc, fmt))
+    result: dict[str, Any] = {
+        "mvs_path": str(mvs_path),
+        "pruned_count": len(pruned_doc["pruned"]),
+        "kept_nodes": kept,
+    }
+    if pruned_out is not None:
+        pruned_path = Path(pruned_out)
+        pruned_path.parent.mkdir(parents=True, exist_ok=True)
+        pruned_path.write_text(json.dumps(pruned_doc, indent=2, sort_keys=True) + "\n")
+        result["pruned_path"] = str(pruned_path)
+    note(f"pruned {len(pruned_doc['pruned'])} nodes (kept {kept}); wrote MVS grammar → {mvs_path}")
+    return result
 
 
 def parse_stratum_spec(spec: str) -> tuple[str, float, str]:
@@ -286,7 +366,46 @@ def _main(argv: list[str] | None = None) -> int:
     parser.add_argument("--max-depth", type=int, default=DEFAULT_MAX_DEPTH)
     parser.add_argument("--max-input-bytes", type=int, default=DEFAULT_MAX_INPUT_BYTES)
     parser.add_argument("--timestamp", default=None)
+    parser.add_argument(
+        "--emit-mvs",
+        type=Path,
+        default=None,
+        metavar="PATH",
+        help="after collecting, prune + code-generate the minified grammar to PATH",
+    )
+    parser.add_argument(
+        "--pruned-out",
+        type=Path,
+        default=None,
+        metavar="PATH",
+        help="also write the pruned-node document (requires --emit-mvs)",
+    )
+    parser.add_argument(
+        "--threshold",
+        type=float,
+        default=None,
+        help="pruning usage threshold for --emit-mvs (default: the pruner default)",
+    )
+    parser.add_argument(
+        "--overrides",
+        type=Path,
+        default=None,
+        help="override registry for --emit-mvs (default: the repo overrides.yaml)",
+    )
+    parser.add_argument(
+        "--surviving-grammar",
+        default=None,
+        help="name of the surviving grammar for --emit-mvs (default: <grammar>-mvs)",
+    )
+    parser.add_argument(
+        "--mvs-format",
+        choices=("abnf", "asn1"),
+        default=None,
+        help="output format for --emit-mvs (default: auto-detected from the AST)",
+    )
     args = parser.parse_args(argv)
+    if args.pruned_out is not None and args.emit_mvs is None:
+        parser.error("--pruned-out requires --emit-mvs")
 
     import sys
 
@@ -360,13 +479,25 @@ def _main(argv: list[str] | None = None) -> int:
         max_depth=args.max_depth,
         max_input_bytes=args.max_input_bytes,
         timestamp=args.timestamp,
+        emit_mvs=args.emit_mvs,
+        pruned_out=args.pruned_out,
+        threshold=args.threshold,
+        overrides_path=args.overrides,
+        surviving_grammar=args.surviving_grammar,
+        mvs_format=args.mvs_format,
         progress=_progress,
     )
-    print(
+    line = (
         f"grammar={summary['grammar']} corpus={summary['total_written']} "
         f"samples={summary['total_samples']} shards={summary['shards']} "
         f"hits={summary['hits_path']}"
     )
+    if "mvs_path" in summary:
+        line += (
+            f" pruned={summary['pruned_count']} kept={summary['kept_nodes']} "
+            f"mvs={summary['mvs_path']}"
+        )
+    print(line)
     return 0
 
 
