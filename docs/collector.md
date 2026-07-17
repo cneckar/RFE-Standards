@@ -30,20 +30,57 @@ the plan in [`CORPUS-PLAN.md`](CORPUS-PLAN.md).
 
 ## Running it
 
-Small run over local files (one stratum per `--list NAME=WEIGHT:PATH`):
+Build the binary once, then drive everything through
+`python -m mvs_pipeline.collector.orchestrate`. Each source is a repeatable
+flag; strata combine under the weights you give them.
 
 ```bash
-cargo build -p mvs-cli --manifest-path core/Cargo.toml   # builds mvs-telemetry
+cargo build -p mvs-cli --release --manifest-path core/Cargo.toml   # → core/target/release/mvs-telemetry
+```
 
+**Local files** (`--list`/`--wat`/`--wiki` take `NAME=WEIGHT:PATH`):
+
+```bash
 python -m mvs_pipeline.collector.orchestrate \
   --ast artifacts/rfc3986-uri.ast.json \
   --list pages=0.8:corpus/pages.txt \
   --list outlinks=0.2:corpus/outlinks.txt \
   --target 100000 --seed 0 --domain-cap 1000 \
   --workdir .work --out out \
-  --binary core/target/debug/mvs-telemetry
+  --binary core/target/release/mvs-telemetry
 # → out/corpus/corpus-*.txt, out/corpus/manifest.json, out/hits.json
 ```
+
+**Straight from Common Crawl** — `--cc-crawl` streams the columnar URL index for
+a crawl over anonymous S3 (no AWS credentials, no manual path wrangling). Start
+with `--cc-limit 2` to validate the S3 path in a few minutes, then scale up and
+thin with `--cc-sample-rate`:
+
+```bash
+python -m mvs_pipeline.collector.orchestrate \
+  --ast artifacts/rfc3986-uri.ast.json \
+  --cc-crawl CC-MAIN-2024-10 --cc-limit 2 --cc-sample-rate 1.0 \
+  --target 200000 --seed 0 --domain-cap 1000 \
+  --workdir .work --out out \
+  --binary core/target/release/mvs-telemetry
+```
+
+Mix sources in one run (CC index + a downloaded Wikipedia dump + WAT files):
+
+```bash
+python -m mvs_pipeline.collector.orchestrate \
+  --ast artifacts/rfc3986-uri.ast.json \
+  --cc-crawl CC-MAIN-2024-10 --cc-weight 0.7 --cc-limit 300 --cc-sample-rate 0.03 \
+  --wat outlinks=0.2:dumps/cc-wat-slice.wat.gz \
+  --wiki wikipedia=0.1:dumps/enwiki-20240101-externallinks.sql.gz \
+  --target 100000000 --seed 0 --domain-cap 1000 \
+  --workdir .work --out out --binary core/target/release/mvs-telemetry
+```
+
+`--cc-crawl` defaults to the `warc` subset (the page-URL corpus); the
+`crawldiagnostics`/`robotstxt` subsets are crawler bookkeeping and are excluded.
+WAT and Wikipedia are read from local files today, so download those first (the
+CC index needs no download — it streams).
 
 CI builds the binary and runs the same path over committed fixtures
 (`pipeline/tests/test_collector_orchestrate.py`, the `e2e` job).

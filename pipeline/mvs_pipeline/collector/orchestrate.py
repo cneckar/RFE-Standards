@@ -156,10 +156,29 @@ def run_collection(
     }
 
 
+def parse_stratum_spec(spec: str) -> tuple[str, float, str]:
+    """Parse a ``NAME=WEIGHT:PATH`` stratum spec into its parts.
+
+    Raises ``ValueError`` on anything malformed so the CLI can report it.
+    """
+    name_weight, sep, path = spec.partition(":")
+    name, eq, weight = name_weight.partition("=")
+    if not sep or not eq or not name or not path:
+        raise ValueError(f"expected NAME=WEIGHT:PATH, got {spec!r}")
+    try:
+        parsed_weight = float(weight)
+    except ValueError:
+        raise ValueError(f"weight must be a number in {spec!r}") from None
+    return name, parsed_weight, path
+
+
 def _main(argv: list[str] | None = None) -> int:
     import argparse
 
+    from mvs_pipeline.collector.commoncrawl import DEFAULT_SUBSET, CommonCrawlUrlIndex
     from mvs_pipeline.collector.filelist import FileListSource
+    from mvs_pipeline.collector.wat import CommonCrawlWat
+    from mvs_pipeline.collector.wikipedia import WikipediaExternalLinks
 
     parser = argparse.ArgumentParser(
         description="Run the free-corpus collector end to end (T6.8).",
@@ -170,7 +189,39 @@ def _main(argv: list[str] | None = None) -> int:
         action="append",
         default=[],
         metavar="NAME=WEIGHT:PATH",
-        help="a file-list stratum, e.g. seed=1.0:corpus/seed.txt (repeatable)",
+        help="a newline URI-list stratum, e.g. seed=1.0:corpus/seed.txt (repeatable)",
+    )
+    parser.add_argument(
+        "--wat",
+        action="append",
+        default=[],
+        metavar="NAME=WEIGHT:PATH",
+        help="a Common Crawl WAT outlinks stratum (local .wat/.wat.gz, repeatable)",
+    )
+    parser.add_argument(
+        "--wiki",
+        action="append",
+        default=[],
+        metavar="NAME=WEIGHT:PATH",
+        help="a Wikipedia externallinks stratum (local .sql/.sql.gz, repeatable)",
+    )
+    parser.add_argument(
+        "--cc-crawl",
+        default=None,
+        metavar="CRAWL_ID",
+        help="stream the Common Crawl URL index for a crawl, e.g. CC-MAIN-2024-10",
+    )
+    parser.add_argument(
+        "--cc-weight", type=float, default=1.0, help="weight of the --cc-crawl stratum"
+    )
+    parser.add_argument(
+        "--cc-subset", default=DEFAULT_SUBSET, help="cc-index subset (default: warc)"
+    )
+    parser.add_argument(
+        "--cc-limit", type=int, default=None, help="max cc-index parquet files to read"
+    )
+    parser.add_argument(
+        "--cc-sample-rate", type=float, default=1.0, help="fraction of cc-index URLs to keep"
     )
     parser.add_argument("--target", type=int, required=True, help="target corpus size N")
     parser.add_argument("--seed", type=int, default=0)
@@ -184,12 +235,31 @@ def _main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     strata: list[Stratum] = []
-    for spec in args.list:
-        name_weight, _, path = spec.partition(":")
-        name, _, weight = name_weight.partition("=")
-        strata.append(Stratum(FileListSource([path], name=name), float(weight), name=name))
+    try:
+        for spec in args.list:
+            name, weight, path = parse_stratum_spec(spec)
+            strata.append(Stratum(FileListSource([path], name=name), weight, name=name))
+        for spec in args.wat:
+            name, weight, path = parse_stratum_spec(spec)
+            strata.append(
+                Stratum(CommonCrawlWat([path], crawl_id=args.cc_crawl), weight, name=name)
+            )
+        for spec in args.wiki:
+            name, weight, path = parse_stratum_spec(spec)
+            strata.append(Stratum(WikipediaExternalLinks([path]), weight, name=name))
+    except ValueError as exc:
+        parser.error(str(exc))
+    if args.cc_crawl:
+        cc = CommonCrawlUrlIndex.from_crawl(
+            args.cc_crawl,
+            subset=args.cc_subset,
+            limit=args.cc_limit,
+            sample_rate=args.cc_sample_rate,
+            seed=args.seed,
+        )
+        strata.append(Stratum(cc, args.cc_weight, name="cc-index"))
     if not strata:
-        parser.error("provide at least one --list stratum")
+        parser.error("provide at least one source (--list / --wat / --wiki / --cc-crawl)")
 
     summary = run_collection(
         strata,
