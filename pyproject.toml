@@ -42,6 +42,7 @@ mvs_pipeline = [
     "grammars/*.asn1",
     "schemas/*.schema.json",
     "collector/data/*.dat",
+    "overrides.yaml",
 ]
 
 [tool.ruff]

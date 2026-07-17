@@ -15,12 +15,14 @@ from typing import Any
 from mvs_pipeline import schema
 from mvs_pipeline.schema import load_document
 
-# Repo layout: <root>/overrides.yaml and <root>/pipeline/mvs_pipeline/overrides.py
-_DEFAULT_PATH = Path(__file__).resolve().parents[2] / "overrides.yaml"
+# Vendored alongside this module (<pkg>/mvs_pipeline/overrides.yaml), like the
+# JSON Schemas and the PSL, so it resolves under any install layout — not just a
+# source checkout. A wheel install has no repo root; a package-relative path does.
+_DEFAULT_PATH = Path(__file__).resolve().parent / "overrides.yaml"
 
 
 def default_path() -> Path:
-    """Path to the repository's canonical ``overrides.yaml``."""
+    """Path to the packaged canonical ``overrides.yaml``."""
     return _DEFAULT_PATH
 
 

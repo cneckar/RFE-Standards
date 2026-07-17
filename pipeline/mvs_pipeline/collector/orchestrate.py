@@ -390,7 +390,7 @@ def _main(argv: list[str] | None = None) -> int:
         "--overrides",
         type=Path,
         default=None,
-        help="override registry for --emit-mvs (default: the repo overrides.yaml)",
+        help="override registry for --emit-mvs (default: the packaged overrides.yaml)",
     )
     parser.add_argument(
         "--surviving-grammar",
