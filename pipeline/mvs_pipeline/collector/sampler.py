@@ -112,6 +112,7 @@ def stratified_sample(
     domain_cap: int | None = 1000,
     num_shards: int = 16,
     num_output_shards: int = 4,
+    workers: int | None = None,
     progress: Callable[[str], None] | None = None,
 ) -> SampleResult:
     """Sample ``strata`` to ``target_n`` URIs; write corpus shards + manifest.
@@ -147,6 +148,7 @@ def stratified_sample(
             workdir=work / f"stratum-{i:02d}",
             domain_cap=domain_cap,
             num_shards=num_shards,
+            workers=workers,
             progress=stratum_progress,
         )
         # Per-stratum seed keeps strata from selecting correlated subsets.

@@ -112,3 +112,21 @@ def test_memory_bounded_many_shards(tmp_path: Path) -> None:
     out = list(dedupe_and_cap(uris, workdir=tmp_path, domain_cap=10, num_shards=64))
     # 200 domains × cap 10 = 2000 kept.
     assert len(out) == 2000
+
+
+def test_workers_output_is_identical_to_serial(tmp_path: Path) -> None:
+    # Parallel partitioning must be byte-for-byte identical to serial, including
+    # the order-sensitive per-domain cap outcome. Mix capped domains, an
+    # over-cap domain, dupes, and cap-exempt (mailto) URIs, in a fixed order.
+    uris: list[str] = []
+    for i in range(500):
+        uris.append(f"https://sub{i % 7}.example.com/{i}")  # one domain, over cap
+        uris.append(f"https://other{i % 3}.org/{i}")
+        uris.append(f"mailto:user{i}@example.net")  # cap-exempt
+        if i % 4 == 0:
+            uris.append("https://example.com/dupe")  # exact duplicate
+    serial = list(dedupe_and_cap(uris, workdir=tmp_path / "s", domain_cap=20, num_shards=8))
+    parallel = list(
+        dedupe_and_cap(uris, workdir=tmp_path / "p", domain_cap=20, num_shards=8, workers=4)
+    )
+    assert parallel == serial  # exact order, not just set equality

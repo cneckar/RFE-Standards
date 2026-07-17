@@ -15,13 +15,19 @@ Peak memory is one shard's worth of distinct URIs, not the whole corpus — tune
 ``num_shards`` to the machine. Output order is deterministic for a given input
 order and shard count. URIs with no registrable domain (``mailto:``, IPv6, ...)
 are exempt from the cap but still deduplicated.
+
+The per-URI partition work (normalize + registrable-domain lookup + shard hash)
+is the CPU cost at 10⁸ scale and is pure Python, so ``workers > 1`` fans it out
+across processes. Results are consumed **in input order** (an ordered pool map),
+so the shard files — and therefore which URIs survive the per-domain cap — are
+bit-identical to the serial path. Determinism does not depend on ``workers``.
 """
 
 from __future__ import annotations
 
 import hashlib
 from collections.abc import Callable, Iterable, Iterator
-from functools import lru_cache
+from functools import lru_cache, partial
 from pathlib import Path
 
 from mvs_pipeline.collector.normalize import host_of, normalize_uri
@@ -29,6 +35,9 @@ from mvs_pipeline.collector.psl import registrable_domain
 
 # Sentinel bucket for URIs without a registrable domain (cap does not apply).
 _NO_DOMAIN = ""
+# URIs per task when fanning partition work across worker processes. Big enough
+# to amortize pickling/IPC, small enough to keep every worker fed.
+_WORKER_CHUNKSIZE = 8192
 
 
 @lru_cache(maxsize=1 << 16)
@@ -42,12 +51,50 @@ def _shard_index(domain: str, num_shards: int) -> int:
     return int.from_bytes(digest, "big") % num_shards
 
 
+def _classify(raw: str, num_shards: int) -> tuple[int, str, str] | None:
+    """Map a raw URI to ``(shard_index, bucket, normalized_uri)``, or ``None`` to drop.
+
+    Pure and top-level (so it is picklable and can run in a worker process). The
+    ``(bucket, uri)`` pair is exactly what phase 1 writes; ``shard_index`` picks
+    the file. ``None`` means the URI normalized away (empty/invalid).
+    """
+    uri = normalize_uri(raw)
+    if uri is None:
+        return None
+    host = host_of(uri)
+    domain = registrable_domain(host) if host else None
+    bucket = domain if domain is not None else _NO_DOMAIN
+    return _shard_index(bucket, num_shards), bucket, uri
+
+
+def _iter_classified(
+    uris: Iterable[str], num_shards: int, workers: int | None
+) -> Iterator[tuple[int, str, str] | None]:
+    """Yield ``_classify`` results for every input URI, in input order.
+
+    Serial for ``workers`` in ``(None, 1)`` (no process-pool cost for small runs
+    and tests); otherwise fans the pure per-URI work across a process pool whose
+    ordered ``map`` preserves input order, keeping the output byte-identical.
+    """
+    if workers is None or workers <= 1:
+        for raw in uris:
+            yield _classify(raw, num_shards)
+        return
+    from concurrent.futures import ProcessPoolExecutor
+
+    with ProcessPoolExecutor(max_workers=workers) as pool:
+        yield from pool.map(
+            partial(_classify, num_shards=num_shards), uris, chunksize=_WORKER_CHUNKSIZE
+        )
+
+
 def dedupe_and_cap(
     uris: Iterable[str],
     *,
     workdir: str | Path,
     domain_cap: int | None = 1000,
     num_shards: int = 16,
+    workers: int | None = None,
     progress: Callable[[str], None] | None = None,
     progress_every: int = 250_000,
 ) -> Iterator[str]:
@@ -61,6 +108,10 @@ def dedupe_and_cap(
         Max URIs kept per registrable domain; ``None`` disables the cap.
     num_shards:
         Number of on-disk partitions; higher = lower peak memory.
+    workers:
+        Processes to fan the per-URI partition work across. ``None``/``1`` runs
+        serially (default). Higher parallelizes the CPU-bound normalize/PSL step
+        while preserving input order, so the output is unchanged.
     progress:
         Optional callback invoked every ``progress_every`` input URIs during the
         (long) partition phase, so a caller can show a heartbeat. ``None`` is
@@ -75,20 +126,18 @@ def dedupe_and_cap(
     handles = [p.open("w", encoding="utf-8") for p in shard_paths]
     read = 0
     try:
-        # Phase 1: partition by registrable-domain hash.
-        for raw in uris:
+        # Phase 1: partition by registrable-domain hash. The per-URI classify may
+        # run across worker processes, but results arrive in input order, so the
+        # tab/newline-delimited shard format and cap outcome are unchanged.
+        for classified in _iter_classified(uris, num_shards, workers):
             read += 1
             if progress is not None and read % progress_every == 0:
                 progress(f"read {read:,} URIs")
-            uri = normalize_uri(raw)
-            # Skip empties; normalize_uri already stripped tabs/newlines (control
-            # chars), so the tab/newline-delimited shard format stays intact.
-            if uri is None:
+            # None => normalize_uri stripped it to empty (control chars already
+            # gone, so the shard format stays intact); skip it.
+            if classified is None:
                 continue
-            host = host_of(uri)
-            domain = registrable_domain(host) if host else None
-            bucket = domain if domain is not None else _NO_DOMAIN
-            idx = _shard_index(bucket, num_shards)
+            idx, bucket, uri = classified
             handles[idx].write(f"{bucket}\t{uri}\n")
     finally:
         for h in handles:

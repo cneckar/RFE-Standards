@@ -101,6 +101,7 @@ def run_collection(
     domain_cap: int | None = 1000,
     num_shards: int = 16,
     num_output_shards: int = 4,
+    workers: int | None = None,
     telemetry_runner: TelemetryRunner | None = None,
     binary: str | Path = "mvs-telemetry",
     max_depth: int | None = DEFAULT_MAX_DEPTH,
@@ -132,6 +133,7 @@ def run_collection(
         domain_cap=domain_cap,
         num_shards=num_shards,
         num_output_shards=num_output_shards,
+        workers=workers,
         progress=progress,
     )
     _note(f"corpus: {sample.total_written:,} URIs across {len(sample.shards)} shard(s)")
@@ -272,6 +274,12 @@ def _main(argv: list[str] | None = None) -> int:
     parser.add_argument("--target", type=int, required=True, help="target corpus size N")
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--domain-cap", type=int, default=1000)
+    parser.add_argument(
+        "--workers",
+        type=int,
+        default=None,
+        help="processes for the per-URI dedup/partition step (default: serial)",
+    )
     parser.add_argument("--workdir", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--binary", default="mvs-telemetry")
@@ -347,6 +355,7 @@ def _main(argv: list[str] | None = None) -> int:
         out_dir=args.out,
         seed=args.seed,
         domain_cap=args.domain_cap,
+        workers=args.workers,
         binary=args.binary,
         max_depth=args.max_depth,
         max_input_bytes=args.max_input_bytes,
