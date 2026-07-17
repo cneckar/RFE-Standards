@@ -175,7 +175,11 @@ def parse_stratum_spec(spec: str) -> tuple[str, float, str]:
 def _main(argv: list[str] | None = None) -> int:
     import argparse
 
-    from mvs_pipeline.collector.commoncrawl import DEFAULT_SUBSET, CommonCrawlUrlIndex
+    from mvs_pipeline.collector.commoncrawl import (
+        DEFAULT_SUBSET,
+        DEFAULT_TRANSPORT,
+        CommonCrawlUrlIndex,
+    )
     from mvs_pipeline.collector.filelist import FileListSource
     from mvs_pipeline.collector.wat import CommonCrawlWat
     from mvs_pipeline.collector.wikipedia import WikipediaExternalLinks
@@ -218,6 +222,12 @@ def _main(argv: list[str] | None = None) -> int:
         "--cc-subset", default=DEFAULT_SUBSET, help="cc-index subset (default: warc)"
     )
     parser.add_argument(
+        "--cc-transport",
+        choices=("https", "s3"),
+        default=DEFAULT_TRANSPORT,
+        help="read cc-index parquet over the https mirror (no creds) or anonymous s3",
+    )
+    parser.add_argument(
         "--cc-limit", type=int, default=None, help="max cc-index parquet files to read"
     )
     parser.add_argument(
@@ -253,6 +263,7 @@ def _main(argv: list[str] | None = None) -> int:
         cc = CommonCrawlUrlIndex.from_crawl(
             args.cc_crawl,
             subset=args.cc_subset,
+            transport=args.cc_transport,
             limit=args.cc_limit,
             sample_rate=args.cc_sample_rate,
             seed=args.seed,

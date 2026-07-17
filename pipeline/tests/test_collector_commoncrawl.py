@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import threading
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 import pyarrow as pa
@@ -42,6 +44,15 @@ def test_resolve_index_paths_limit_and_subset() -> None:
     # A different subset selects other files; None keeps all parquet paths.
     assert len(resolve_index_paths(_MANIFEST, subset="robotstxt")) == 1
     assert len(resolve_index_paths(_MANIFEST, subset=None)) == 4
+
+
+def test_resolve_index_paths_https_prefix() -> None:
+    # transport="https" resolves against the mirror instead of the S3 bucket.
+    paths = resolve_index_paths(_MANIFEST, limit=1, prefix="https://data.commoncrawl.org")
+    assert paths == [
+        "https://data.commoncrawl.org/cc-index/table/cc-main/warc/"
+        "crawl=CC-MAIN-2024-10/subset=warc/part-00000.parquet"
+    ]
 
 
 def _write_cc_index(path: Path, urls: list[str]) -> None:
@@ -94,6 +105,60 @@ def test_multiple_files_concatenate(tmp_path: Path) -> None:
     src = CommonCrawlUrlIndex([str(a), str(b)])
     assert list(src.iter_uris()) == ["https://a.test/1", "https://a.test/2", "https://b.test/1"]
     assert src.provenance()["files_read"] == [str(a), str(b)]
+
+
+class _RangeHandler(BaseHTTPRequestHandler):
+    """Serve a single in-memory file with HEAD + Range support (like the CC mirror)."""
+
+    def log_message(self, *args: object) -> None:  # silence test output
+        pass
+
+    def do_HEAD(self) -> None:
+        data = self.server.data  # type: ignore[attr-defined]
+        self.send_response(200)
+        self.send_header("Content-Length", str(len(data)))
+        self.send_header("Accept-Ranges", "bytes")
+        self.end_headers()
+
+    def do_GET(self) -> None:
+        data: bytes = self.server.data  # type: ignore[attr-defined]
+        rng = self.headers.get("Range")
+        if rng and rng.startswith("bytes="):
+            start_s, _, end_s = rng[len("bytes=") :].partition("-")
+            start = int(start_s)
+            end = int(end_s) if end_s else len(data) - 1
+            chunk = data[start : end + 1]
+            self.send_response(206)
+            self.send_header("Content-Range", f"bytes {start}-{end}/{len(data)}")
+            self.send_header("Content-Length", str(len(chunk)))
+            self.end_headers()
+            self.wfile.write(chunk)
+        else:
+            self.send_response(200)
+            self.send_header("Content-Length", str(len(data)))
+            self.end_headers()
+            self.wfile.write(data)
+
+
+def test_reads_parquet_over_http_range_requests(tmp_path: Path) -> None:
+    # Serve a real parquet fixture over a local HTTP server that honors Range,
+    # exactly as the Common Crawl mirror does, and read it via the https path.
+    urls = [f"https://example{i}.test/p/{i}" for i in range(30)]
+    parquet = tmp_path / "part.parquet"
+    _write_cc_index(parquet, urls)
+
+    server = ThreadingHTTPServer(("127.0.0.1", 0), _RangeHandler)
+    server.data = parquet.read_bytes()  # type: ignore[attr-defined]
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        url = f"http://127.0.0.1:{server.server_address[1]}/part.parquet"
+        src = CommonCrawlUrlIndex([url], crawl_id="CC-MAIN-2024-10")
+        assert list(src.iter_uris()) == urls
+        assert src.provenance()["urls_read"] == len(urls)
+    finally:
+        server.shutdown()
+        thread.join()
 
 
 def test_sampling_is_deterministic_and_bounded(cc_index: tuple[Path, list[str]]) -> None:
