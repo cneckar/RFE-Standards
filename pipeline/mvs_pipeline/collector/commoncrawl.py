@@ -24,6 +24,7 @@ import pyarrow.parquet as pq
 from pyarrow import fs
 
 from mvs_pipeline.collector.base import keep_sample
+from mvs_pipeline.collector.http import fetch_bytes, open_stream
 
 #: Public HTTPS mirror of the Common Crawl S3 bucket (free, no credentials).
 CC_HTTPS_HOST = "https://data.commoncrawl.org"
@@ -85,8 +86,11 @@ class _HttpRangeFile:
     @staticmethod
     def _head_size(url: str) -> int:
         req = urllib.request.Request(url, method="HEAD")
-        with urllib.request.urlopen(req) as resp:  # noqa: S310 (trusted CC mirror)
+        resp = open_stream(req)  # retried; the mirror 503s under load
+        try:
             length = resp.headers.get("Content-Length")
+        finally:
+            resp.close()
         if length is None:
             raise OSError(f"no Content-Length for {url}; server must support HEAD")
         return int(length)
@@ -127,8 +131,9 @@ class _HttpRangeFile:
         if end <= self._pos:
             return b""
         req = urllib.request.Request(self._url, headers={"Range": f"bytes={self._pos}-{end - 1}"})
-        with urllib.request.urlopen(req) as resp:  # noqa: S310 (trusted CC mirror)
-            data = resp.read()
+        # A bounded range body: retry the whole open+read so a mid-range 503 or
+        # dropped connection during a multi-hour run doesn't abort the parse.
+        data = fetch_bytes(req)
         self._pos += len(data)
         return data
 
@@ -253,7 +258,6 @@ class CommonCrawlUrlIndex:
             raise ValueError(f"transport must be 'https' or 's3', got {transport!r}")
 
         manifest_url = f"{host}/crawl-data/{crawl_id}/cc-index-table.paths.gz"
-        with urllib.request.urlopen(manifest_url) as resp:  # noqa: S310 (trusted host)
-            manifest_text = gzip.decompress(resp.read()).decode()
+        manifest_text = gzip.decompress(fetch_bytes(manifest_url)).decode()
         paths = resolve_index_paths(manifest_text, subset=subset, limit=limit, prefix=prefix)
         return cls(paths, crawl_id=crawl_id, sample_rate=sample_rate, seed=seed)

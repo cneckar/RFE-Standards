@@ -16,12 +16,12 @@ from __future__ import annotations
 
 import gzip
 import json
-import urllib.request
 from collections.abc import Iterator, Sequence
 from pathlib import Path
 from typing import Any, BinaryIO
 
 from mvs_pipeline.collector.base import keep_sample
+from mvs_pipeline.collector.http import fetch_bytes, open_stream
 
 #: Public HTTPS mirror of the Common Crawl bucket (free, no credentials).
 CC_HTTPS_HOST = "https://data.commoncrawl.org"
@@ -108,7 +108,7 @@ def _open_stream(path: str | Path) -> BinaryIO:
     """
     text = str(path)
     if text.startswith(("http://", "https://")):
-        resp = urllib.request.urlopen(text)  # noqa: S310 (trusted CC mirror)
+        resp = open_stream(text)  # retried open; the mirror 503s under load
         return gzip.GzipFile(fileobj=resp) if text.endswith(".gz") else resp
     p = Path(path)
     if p.suffix == ".gz":
@@ -188,7 +188,6 @@ class CommonCrawlWat:
         path resolution is unit-tested via :func:`resolve_wat_paths`.
         """
         manifest_url = f"{host}/crawl-data/{crawl_id}/wat.paths.gz"
-        with urllib.request.urlopen(manifest_url) as resp:  # noqa: S310 (trusted host)
-            manifest_text = gzip.decompress(resp.read()).decode()
+        manifest_text = gzip.decompress(fetch_bytes(manifest_url)).decode()
         paths = resolve_wat_paths(manifest_text, limit=limit, prefix=host)
         return cls(paths, crawl_id=crawl_id, sample_rate=sample_rate, seed=seed)
