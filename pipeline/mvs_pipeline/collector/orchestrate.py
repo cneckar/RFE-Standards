@@ -31,9 +31,11 @@ from mvs_pipeline.provenance import provenance_from_manifest
 # A telemetry runner maps a corpus shard file to its hits document.
 TelemetryRunner = Callable[[Path], dict[str, Any]]
 
-#: Default T4.2 bounds for ingestion (deep enough for real URIs, capped so junk
-#: can't run away).
-DEFAULT_MAX_DEPTH = 400
+#: Default T4.2 bounds for ingestion. The recognizer recurses ~one frame per
+#: matched byte, so the depth bound must cover the input-length bound or long
+#: (valid) URLs are recorded as non-matches — the default is sized to accept any
+#: input within DEFAULT_MAX_INPUT_BYTES (the binary runs on a deep stack).
+DEFAULT_MAX_DEPTH = 200_000
 DEFAULT_MAX_INPUT_BYTES = 8192
 
 

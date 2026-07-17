@@ -118,3 +118,9 @@ Reaching a statistically adequate 10⁸-URI corpus (see the sizing argument in
 `mvs-telemetry` takes `--max-depth` (abandon a parse descending deeper than N
 frames) and `--max-input-bytes` (skip an over-long line). The orchestrator
 enables both by default so one pathological URL in 10⁸ cannot stall a shard.
+
+The recognizer recurses ~one frame per matched byte, so `--max-depth` is really
+a bound on input *length*, not just grammar nesting — set too low it records
+long-but-valid URLs as non-matches. The default (200,000) is sized to accept any
+URL within `--max-input-bytes` (8192), and the binary runs its matching on a
+large-stack worker thread so that deep-but-legal recursion doesn't overflow.

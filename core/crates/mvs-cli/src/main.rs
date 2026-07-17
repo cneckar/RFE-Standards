@@ -19,9 +19,23 @@ use std::process::ExitCode;
 use mvs_core::{DerWalker, Grammar, HitAggregator};
 use mvs_schema::Ast;
 
+/// Worker stack size. The recognizer recurses roughly one frame per matched
+/// input byte (see `parse_bounded`), so matching a long-but-legal URL needs a
+/// deep stack. `--max-input-bytes` bounds the input length; this stack is sized
+/// to hold that recursion comfortably.
+const WORKER_STACK_BYTES: usize = 512 * 1024 * 1024;
+
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().skip(1).collect();
-    match run(&args) {
+    // Run the whole job on a large-stack thread: the default 8 MiB main stack
+    // would overflow on legitimately long inputs.
+    let result = std::thread::Builder::new()
+        .stack_size(WORKER_STACK_BYTES)
+        .spawn(move || run(&args))
+        .expect("spawn worker thread")
+        .join()
+        .expect("worker thread panicked");
+    match result {
         Ok(summary) => {
             eprintln!("{summary}");
             ExitCode::SUCCESS

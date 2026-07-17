@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import hashlib
 from collections.abc import Callable, Iterable, Iterator
+from functools import lru_cache
 from pathlib import Path
 
 from mvs_pipeline.collector.normalize import host_of, normalize_uri
@@ -30,8 +31,13 @@ from mvs_pipeline.collector.psl import registrable_domain
 _NO_DOMAIN = ""
 
 
+@lru_cache(maxsize=1 << 16)
 def _shard_index(domain: str, num_shards: int) -> int:
-    """Stable shard for ``domain`` (stable across processes, unlike ``hash``)."""
+    """Stable shard for ``domain`` (stable across processes, unlike ``hash``).
+
+    Memoized: called once per URI but keyed on the (repeating, adjacency-sorted)
+    domain, so the blake2b runs roughly once per distinct domain.
+    """
     digest = hashlib.blake2b(domain.encode("utf-8"), digest_size=8).digest()
     return int.from_bytes(digest, "big") % num_shards
 

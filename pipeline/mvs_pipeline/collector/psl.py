@@ -13,7 +13,7 @@ exception ``!`` rules) exactly enough to compute registrable domains.
 
 from __future__ import annotations
 
-from functools import cache
+from functools import cache, lru_cache
 from pathlib import Path
 
 _PSL_PATH = Path(__file__).resolve().parent / "data" / "public_suffix_list.dat"
@@ -94,6 +94,12 @@ def default_psl() -> PublicSuffixList:
     return PublicSuffixList(_PSL_PATH.read_text(encoding="utf-8"))
 
 
+@lru_cache(maxsize=1 << 17)
 def registrable_domain(host: str) -> str | None:
-    """Registrable domain of ``host`` using the vendored PSL."""
+    """Registrable domain of ``host`` using the vendored PSL.
+
+    Memoized: at 10⁸ scale the dominant per-URI cost is this PSL walk, and the
+    Common Crawl index is SURT-sorted so consecutive URIs share a host — the
+    cache turns per-URI lookups into roughly per-distinct-host lookups.
+    """
     return default_psl().registrable_domain(host)
