@@ -95,6 +95,32 @@ anonymously instead (e.g. on EC2, for free in-region egress). It defaults to the
 `warc` subset (the page-URL corpus); the
 `crawldiagnostics`/`robotstxt` subsets are crawler bookkeeping and are excluded.
 
+## One command: sources → minified grammar
+
+Add `--emit-mvs PATH` and the run continues past `hits.json` straight into
+pruning (Phase 3) and code generation (Phase 4): every node used by fewer than
+`--threshold` of samples that the override registry does not protect is dropped,
+and the surviving rules are unparsed to a minified but valid grammar. This is the
+whole pipeline in a single invocation — raw sources to a shippable MVS.
+
+```bash
+python -m mvs_pipeline.collector.orchestrate \
+  --ast artifacts/rfc3986-uri.ast.json \
+  --cc-crawl CC-MAIN-2024-10 --cc-weight 0.7 --cc-sample-rate 0.03 \
+  --wat-crawl CC-MAIN-2024-10 --wat-weight 0.2 --wat-limit 40 --wat-sample-rate 0.5 \
+  --wiki-dump enwiki --wiki-weight 0.1 \
+  --target 100000000 --seed 0 --domain-cap 1000 --workers 8 \
+  --workdir .work --out out --binary core/target/release/mvs-telemetry \
+  --emit-mvs out/rfc3986-uri.mvs.abnf --pruned-out out/rfc3986-uri.pruned.json
+# → out/hits.json, out/rfc3986-uri.pruned.json, out/rfc3986-uri.mvs.abnf
+```
+
+`--overrides` picks a registry other than the repo `overrides.yaml`;
+`--surviving-grammar` names the output grammar (default `<grammar>-mvs`);
+`--threshold` sets the usage cutoff; `--mvs-format abnf|asn1` overrides the
+auto-detected format. `--workers N` fans the CPU-bound dedup/partition step
+across `N` processes without changing the (deterministic) output.
+
 CI builds the binary and runs the same path over committed fixtures
 (`pipeline/tests/test_collector_orchestrate.py`, the `e2e` job).
 
