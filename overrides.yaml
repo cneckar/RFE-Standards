@@ -10,6 +10,13 @@
 # bar an override has to clear. Node ids are the stable ids from the Phase-1 AST
 # artifacts under artifacts/.
 
+# Starter registry for rfc3986-uri. Free crawl corpora are overwhelmingly
+# fetched http/https *page* URLs, so several grammar features that are load-
+# bearing for security or interoperability appear well under the 0.1% pruning
+# threshold — corpus bias, not evidence they are unused. The diversity strata
+# (WAT outlinks, Wikipedia externallinks) raise their frequency, but the ones
+# below must survive pruning regardless of how the sample lands. Each protects a
+# Phase-1 rule node id from artifacts/rfc3986-uri.ast.json.
 schema_version: 1
 overrides:
   # Percent-encoding is rare across sampled URIs but must never be dropped:
@@ -23,3 +30,66 @@ overrides:
       and reject encoded traversal (%2e%2e) and injection payloads, even though
       it appears in well under 0.1% of sampled URIs.
     owner: security-wg
+
+  # userinfo is the classic authority-confusion vector (https://good.com@evil.com).
+  # A parser that cannot recognize userinfo cannot enforce the defense — it would
+  # read evil.com as the host without ever knowing the good.com@ prefix was there.
+  # Rare and deprecated for transport, but its recognition is a security control.
+  "rfc3986-uri:userinfo#2bf7da71":
+    protected: true
+    justification: >-
+      Security-critical: the userinfo component must be parsed to defend against
+      authority-confusion / phishing URLs like https://trusted.com@attacker.com.
+      Dropping it would let a parser silently treat the attacker host as trusted.
+    owner: security-wg
+
+  # Non-default ports are the norm for internal services, dev/staging, and
+  # alt-svc endpoints, none of which the public page-URL corpus samples well.
+  # Dropping port would reject valid authorities and break origin comparison
+  # (scheme+host+port), a security-relevant identity.
+  "rfc3986-uri:port#cdb4d14b":
+    protected: true
+    justification: >-
+      Interop- and security-critical: the port subcomponent is load-bearing for
+      internal/non-standard-port services and for same-origin comparison
+      (scheme+host+port), even though public page URLs almost always omit it.
+    owner: protocol-wg
+
+  # IP-literal (and its IPv6/IPvFuture children) addresses hosts directly rather
+  # than by name. Rare in crawled page URLs but essential for link-local, loopback,
+  # and internal addressing — and a parser must recognize IPv6 literals to apply
+  # SSRF / private-range defenses (e.g. [::1], [fd00::]).
+  "rfc3986-uri:IP-literal#615ca5b3":
+    protected: true
+    justification: >-
+      Security-critical: IP-literal authorities ([...]) must be parsed so SSRF and
+      private-range defenses can inspect literal IPv6 hosts (e.g. [::1], [fd00::]).
+      They are rare in page-URL corpora but load-bearing wherever hosts are
+      addressed directly.
+    owner: security-wg
+  "rfc3986-uri:IPv6address#1225d44b":
+    protected: true
+    justification: >-
+      Security-critical: the IPv6 address form inside an IP-literal must be parsed
+      to correctly identify loopback/link-local/unique-local hosts for SSRF and
+      access-control decisions, despite near-zero frequency in crawled page URLs.
+    owner: security-wg
+  # NOTE: IPvFuture (rfc3986-uri:IPvFuture#2294e31a) is deliberately NOT protected.
+  # It has zero corpus presence and no defined address version, so its entire body
+  # subtree prunes away; protecting only the rule node would emit an empty rule.
+  # Reinstating it would mean protecting its whole (dead) subtree — override debt
+  # that its forward-compatibility rationale does not currently clear. IP-literal
+  # keeps the "[" ... "]" bracket form for the live IPv6 case.
+
+  # Fragments are never sent to the server, so server-side crawl corpora
+  # systematically under-count them, yet they carry client-side routing (SPA
+  # state), media fragments, and accessibility skip-links (#main). They are part
+  # of the URI identity and must not be pruned as "unused".
+  "rfc3986-uri:fragment#ae36814a":
+    protected: true
+    justification: >-
+      Interop- and accessibility-critical: fragments carry client-side routing,
+      media fragments, and skip-to-content anchors (#main). Server-log and crawl
+      corpora under-count them because fragments are not sent to the server, so
+      their low sampled frequency is an artifact, not evidence of disuse.
+    owner: protocol-wg
