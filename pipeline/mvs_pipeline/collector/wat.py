@@ -16,11 +16,33 @@ from __future__ import annotations
 
 import gzip
 import json
+import urllib.request
 from collections.abc import Iterator, Sequence
 from pathlib import Path
 from typing import Any, BinaryIO
 
 from mvs_pipeline.collector.base import keep_sample
+
+#: Public HTTPS mirror of the Common Crawl bucket (free, no credentials).
+CC_HTTPS_HOST = "https://data.commoncrawl.org"
+
+
+def resolve_wat_paths(
+    manifest_text: str,
+    *,
+    limit: int | None = None,
+    prefix: str = CC_HTTPS_HOST,
+) -> list[str]:
+    """Turn a crawl's ``wat.paths`` listing into fully-qualified URLs.
+
+    Each line is a ``.warc.wat.gz`` key relative to the bucket root; join it onto
+    ``prefix`` (the HTTPS mirror by default). ``limit`` caps how many to read.
+    """
+    keys = [line.strip() for line in manifest_text.splitlines() if line.strip()]
+    keys = [k for k in keys if k.endswith(".wat.gz")]
+    if limit is not None:
+        keys = keys[:limit]
+    return [f"{prefix}/{k}" for k in keys]
 
 
 def _iter_warc_records(stream: BinaryIO) -> Iterator[tuple[dict[str, str], bytes]]:
@@ -78,11 +100,20 @@ def iter_links_from_wat(stream: BinaryIO) -> Iterator[str]:
 
 
 def _open_stream(path: str | Path) -> BinaryIO:
-    """Open ``path`` for binary reading, transparently gunzipping ``.gz``."""
-    path = Path(path)
-    if path.suffix == ".gz":
-        return gzip.open(path, "rb")
-    return path.open("rb")
+    """Open ``path`` for sequential binary reading, gunzipping ``.gz``.
+
+    Local paths and ``http(s)://`` URLs are both supported; WAT is read as a
+    sequential WARC stream, so the HTTPS case just streams the gzip body (no
+    range requests, no credentials).
+    """
+    text = str(path)
+    if text.startswith(("http://", "https://")):
+        resp = urllib.request.urlopen(text)  # noqa: S310 (trusted CC mirror)
+        return gzip.GzipFile(fileobj=resp) if text.endswith(".gz") else resp
+    p = Path(path)
+    if p.suffix == ".gz":
+        return gzip.open(p, "rb")
+    return p.open("rb")
 
 
 class CommonCrawlWat:
@@ -138,3 +169,26 @@ class CommonCrawlWat:
             "files_read": list(self._files_read),
             "urls_read": self._urls_read,
         }
+
+    @classmethod
+    def from_crawl(
+        cls,
+        crawl_id: str,
+        *,
+        limit: int | None = None,
+        sample_rate: float = 1.0,
+        seed: int = 0,
+        host: str = CC_HTTPS_HOST,
+    ) -> CommonCrawlWat:
+        """Build a connector for a crawl's WAT files, streamed over HTTPS.
+
+        Fetches ``crawl-data/<crawl_id>/wat.paths.gz`` — the manifest of WAT file
+        keys — over the free public mirror and points the connector at them.
+        ``limit`` caps how many WAT files to read (each is large). Network-backed;
+        path resolution is unit-tested via :func:`resolve_wat_paths`.
+        """
+        manifest_url = f"{host}/crawl-data/{crawl_id}/wat.paths.gz"
+        with urllib.request.urlopen(manifest_url) as resp:  # noqa: S310 (trusted host)
+            manifest_text = gzip.decompress(resp.read()).decode()
+        paths = resolve_wat_paths(manifest_text, limit=limit, prefix=host)
+        return cls(paths, crawl_id=crawl_id, sample_rate=sample_rate, seed=seed)

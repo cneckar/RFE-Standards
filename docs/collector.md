@@ -66,25 +66,34 @@ python -m mvs_pipeline.collector.orchestrate \
   --binary core/target/release/mvs-telemetry
 ```
 
-Mix sources in one run (CC index + a downloaded Wikipedia dump + WAT files):
+**All three strata streamed, zero downloads** — `--cc-crawl` (page URLs),
+`--wat-crawl` (scheme-diverse outlinks), and `--wiki-dump` (curated external
+links) each resolve their own manifests off the public mirrors and stream over
+HTTPS. This is the de-biased corpus the pruner needs: page URLs alone are almost
+all http/https, so `mailto:`/`tel:`/`ftp:`/IPv6/userinfo only appear once the
+outlink and Wikipedia strata are mixed in.
 
 ```bash
 python -m mvs_pipeline.collector.orchestrate \
   --ast artifacts/rfc3986-uri.ast.json \
   --cc-crawl CC-MAIN-2024-10 --cc-weight 0.7 --cc-limit 300 --cc-sample-rate 0.03 \
-  --wat outlinks=0.2:dumps/cc-wat-slice.wat.gz \
-  --wiki wikipedia=0.1:dumps/enwiki-20240101-externallinks.sql.gz \
+  --wat-crawl CC-MAIN-2024-10 --wat-weight 0.2 --wat-limit 40 --wat-sample-rate 0.5 \
+  --wiki-dump enwiki --wiki-date latest --wiki-weight 0.1 \
   --target 100000000 --seed 0 --domain-cap 1000 \
   --workdir .work --out out --binary core/target/release/mvs-telemetry
 ```
+
+`--wat-crawl <id>` fetches `crawl-data/<id>/wat.paths.gz` and streams that many
+(`--wat-limit`) WAT files sequentially — each is large, so start small.
+`--wiki-dump <wiki>` streams `<wiki>/<date>/<wiki>-<date>-externallinks.sql.gz`
+from `dumps.wikimedia.org` (`--wiki-date` defaults to `latest`). The local-file
+`--wat`/`--wiki NAME=WEIGHT:PATH` forms still work if you'd rather pre-download.
 
 `--cc-crawl` reads over HTTPS by default (works anywhere the mirror is
 reachable); pass `--cc-transport s3` to stream from `s3://commoncrawl`
 anonymously instead (e.g. on EC2, for free in-region egress). It defaults to the
 `warc` subset (the page-URL corpus); the
 `crawldiagnostics`/`robotstxt` subsets are crawler bookkeeping and are excluded.
-WAT and Wikipedia are read from local files today, so download those first (the
-CC index needs no download — it streams).
 
 CI builds the binary and runs the same path over committed fixtures
 (`pipeline/tests/test_collector_orchestrate.py`, the `e2e` job).

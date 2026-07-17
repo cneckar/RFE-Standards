@@ -5,9 +5,11 @@ from __future__ import annotations
 import gzip
 import io
 import json
+import threading
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-from mvs_pipeline.collector import Source
+from mvs_pipeline.collector import Source, resolve_wat_paths
 from mvs_pipeline.collector.wat import (
     CommonCrawlWat,
     iter_links_from_wat,
@@ -100,3 +102,61 @@ def test_sampling_is_deterministic_and_bounded(tmp_path: Path) -> None:
     assert a == b
     assert 0 < len(a) < len(links)
     assert set(a).issubset(set(links))
+
+
+def test_resolve_wat_paths_filters_and_joins() -> None:
+    manifest = "\n".join(
+        [
+            "crawl-data/CC-MAIN-2024-10/segments/1/wat/CC-MAIN-0.warc.wat.gz",
+            "crawl-data/CC-MAIN-2024-10/segments/1/wat/CC-MAIN-1.warc.wat.gz",
+            "crawl-data/CC-MAIN-2024-10/segments/1/wet/CC-MAIN-0.warc.wet.gz",  # not WAT
+            "",  # blank tolerated
+        ]
+    )
+    paths = resolve_wat_paths(manifest)
+    assert paths == [
+        "https://data.commoncrawl.org/crawl-data/CC-MAIN-2024-10/segments/1/wat/CC-MAIN-0.warc.wat.gz",
+        "https://data.commoncrawl.org/crawl-data/CC-MAIN-2024-10/segments/1/wat/CC-MAIN-1.warc.wat.gz",
+    ]
+    assert len(resolve_wat_paths(manifest, limit=1)) == 1
+    assert resolve_wat_paths(manifest, prefix="s3://commoncrawl")[0].startswith("s3://commoncrawl/")
+
+
+class _GzipFileHandler(BaseHTTPRequestHandler):
+    """Serve a single in-memory gzip body sequentially (like the CC WAT mirror)."""
+
+    def log_message(self, *args: object) -> None:  # silence test output
+        pass
+
+    def do_GET(self) -> None:
+        data: bytes = self.server.data  # type: ignore[attr-defined]
+        self.send_response(200)
+        self.send_header("Content-Length", str(len(data)))
+        self.end_headers()
+        self.wfile.write(data)
+
+
+def _serve_bytes(data: bytes) -> tuple[ThreadingHTTPServer, threading.Thread, str]:
+    server = ThreadingHTTPServer(("127.0.0.1", 0), _GzipFileHandler)
+    server.data = data  # type: ignore[attr-defined]
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    url = f"http://127.0.0.1:{server.server_address[1]}/sample.wat.gz"
+    return server, thread, url
+
+
+def test_connector_streams_gzip_over_http() -> None:
+    # The HTTPS path gunzips a sequential body on the fly (no range requests).
+    server, thread, url = _serve_bytes(gzip.compress(_sample_wat()))
+    try:
+        urls = list(CommonCrawlWat([url]).iter_uris())
+        assert urls == [
+            "mailto:a@b.test",
+            "https://x.test/1",
+            "ftp://f.test/file",
+            "tel:+15551234",
+            "irc://irc.test/chan",
+        ]
+    finally:
+        server.shutdown()
+        thread.join()

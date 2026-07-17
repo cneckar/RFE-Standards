@@ -19,13 +19,17 @@ for other layouts.
 from __future__ import annotations
 
 import gzip
+import io
 import re
+import urllib.request
 from collections.abc import Iterator, Sequence
 from pathlib import Path
 from typing import Any
 
 from mvs_pipeline.collector.base import keep_sample
 
+#: Wikimedia dumps host (free HTTPS, CC BY-SA / GFDL).
+WIKIMEDIA_HOST = "https://dumps.wikimedia.org"
 #: Column index of ``el_to`` (the full URL) in the classic externallinks schema.
 DEFAULT_URL_COLUMN = 2
 #: A field is treated as a URL only if it carries a scheme (``scheme:``).
@@ -106,16 +110,26 @@ def iter_external_urls(
                     yield value
 
 
-def _dump_date_from_name(path: Path) -> str | None:
-    match = _DUMP_DATE.search(path.name)
+def _dump_date_from_name(name: str) -> str | None:
+    match = _DUMP_DATE.search(name)
     return match.group(1) if match else None
 
 
 def _iter_lines(path: str | Path) -> Iterator[str]:
-    """Iterate decoded lines of a ``.sql`` or ``.sql.gz`` dump."""
-    path = Path(path)
-    opener = gzip.open if path.suffix == ".gz" else open
-    with opener(path, "rt", encoding="utf-8", errors="replace") as fh:
+    """Iterate decoded lines of a ``.sql`` / ``.sql.gz`` dump (local or HTTPS).
+
+    HTTPS dumps stream sequentially (gunzipped on the fly) — the file is read
+    front to back, so no range requests or credentials are needed.
+    """
+    text = str(path)
+    if text.startswith(("http://", "https://")):
+        resp = urllib.request.urlopen(text)  # noqa: S310 (trusted dumps host)
+        raw = gzip.GzipFile(fileobj=resp) if text.endswith(".gz") else resp
+        yield from io.TextIOWrapper(raw, encoding="utf-8", errors="replace")
+        return
+    p = Path(path)
+    opener = gzip.open if p.suffix == ".gz" else open
+    with opener(p, "rt", encoding="utf-8", errors="replace") as fh:
         yield from fh
 
 
@@ -145,7 +159,8 @@ class WikipediaExternalLinks:
         sample_rate: float = 1.0,
         seed: int = 0,
     ) -> None:
-        self.paths = [Path(p) for p in paths]
+        # Keep raw so http(s) URLs survive (Path would mangle "https://").
+        self.paths = [str(p) for p in paths]
         self.url_column = url_column
         self.sample_rate = sample_rate
         self.seed = seed
@@ -160,7 +175,7 @@ class WikipediaExternalLinks:
                 if keep_sample(url, self.sample_rate, self.seed):
                     self._urls_read += 1
                     yield url
-            self._files_read.append(str(path))
+            self._files_read.append(path)
             date = _dump_date_from_name(path)
             if date is not None:
                 self._dump_dates.append(date)
@@ -175,3 +190,33 @@ class WikipediaExternalLinks:
             "files_read": list(self._files_read),
             "urls_read": self._urls_read,
         }
+
+    @classmethod
+    def from_dump(
+        cls,
+        wiki: str = "enwiki",
+        *,
+        date: str = "latest",
+        host: str = WIKIMEDIA_HOST,
+        sample_rate: float = 1.0,
+        seed: int = 0,
+        url_column: int = DEFAULT_URL_COLUMN,
+    ) -> WikipediaExternalLinks:
+        """Build a connector for a wiki's externallinks dump, streamed over HTTPS.
+
+        Points at ``<host>/<wiki>/<date>/<wiki>-<date>-externallinks.sql.gz`` —
+        e.g. ``enwiki`` / ``latest``. The dump is a single large gzip stream read
+        sequentially; no download step. Network-backed; the URL shape is
+        unit-tested via :func:`dump_url`.
+        """
+        return cls(
+            [dump_url(wiki, date, host=host)],
+            sample_rate=sample_rate,
+            seed=seed,
+            url_column=url_column,
+        )
+
+
+def dump_url(wiki: str, date: str = "latest", *, host: str = WIKIMEDIA_HOST) -> str:
+    """URL of a wiki's ``externallinks`` SQL dump for ``date`` (``latest`` ok)."""
+    return f"{host}/{wiki}/{date}/{wiki}-{date}-externallinks.sql.gz"
