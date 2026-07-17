@@ -24,6 +24,10 @@ import urllib.request
 from collections.abc import Callable
 from typing import IO
 
+#: Descriptive User-Agent. Wikimedia's User-Agent policy returns 403 to the
+#: default ``Python-urllib/x.y`` agent, so every request must identify the tool
+#: and a contact URL. (Common Crawl doesn't require it but accepts it.)
+USER_AGENT = "mvs-rfe-collector/1.0 (+https://github.com/cneckar/RFE-Standards)"
 #: HTTP statuses worth retrying: rate-limit and transient server/gateway errors.
 RETRYABLE_STATUS = frozenset({408, 425, 429, 500, 502, 503, 504})
 #: Default attempt budget (1 initial + this many retries).
@@ -34,6 +38,22 @@ DEFAULT_BACKOFF_CAP = 30.0
 #: Per-request socket timeout so a stalled connection fails (and retries) instead
 #: of hanging a multi-hour run forever.
 DEFAULT_TIMEOUT = 60.0
+
+
+def _with_user_agent(req_or_url: urllib.request.Request | str) -> urllib.request.Request:
+    """Return a ``Request`` for ``req_or_url`` carrying our ``User-Agent``.
+
+    A bare URL becomes a ``Request``; an existing ``Request`` (e.g. a Range or
+    HEAD probe) keeps its headers and only gains ours if it lacks one. Without
+    this, Wikimedia rejects the default urllib agent with 403.
+    """
+    if isinstance(req_or_url, urllib.request.Request):
+        req = req_or_url
+    else:
+        req = urllib.request.Request(req_or_url)
+    if not req.has_header("User-agent"):
+        req.add_header("User-Agent", USER_AGENT)
+    return req
 
 
 def _is_retryable(exc: BaseException) -> bool:
@@ -100,15 +120,15 @@ def fetch_bytes(
     mid-body is retried from the start — safe because the caller wants the whole
     (bounded) body anyway.
     """
-    label = req_or_url.full_url if isinstance(req_or_url, urllib.request.Request) else req_or_url
+    req = _with_user_agent(req_or_url)
 
     def attempt() -> bytes:
-        with urllib.request.urlopen(req_or_url, timeout=timeout) as resp:  # noqa: S310
+        with urllib.request.urlopen(req, timeout=timeout) as resp:  # noqa: S310
             return resp.read()
 
     return _run_with_retries(  # type: ignore[return-value]
         attempt,
-        what=label,
+        what=req.full_url,
         retries=retries,
         backoff_base=backoff_base,
         backoff_cap=backoff_cap,
@@ -132,14 +152,14 @@ def open_stream(
     Only the open is retried — a sequential gzip body can't be resumed once torn —
     but the open is where a 503 / connection-refused surfaces.
     """
-    label = req_or_url.full_url if isinstance(req_or_url, urllib.request.Request) else req_or_url
+    req = _with_user_agent(req_or_url)
 
     def attempt() -> IO[bytes]:
-        return urllib.request.urlopen(req_or_url, timeout=timeout)  # noqa: S310
+        return urllib.request.urlopen(req, timeout=timeout)  # noqa: S310
 
     return _run_with_retries(  # type: ignore[return-value]
         attempt,
-        what=label,
+        what=req.full_url,
         retries=retries,
         backoff_base=backoff_base,
         backoff_cap=backoff_cap,

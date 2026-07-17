@@ -66,6 +66,23 @@ def _protected_ids_runner(corpus_path: Path) -> dict:
     }
 
 
+def test_orchestrate_is_lazy_but_reachable_from_package() -> None:
+    # Importing the package must NOT eagerly import the orchestrate submodule
+    # (that pre-import is what makes `python -m ...orchestrate` warn, once per
+    # spawned worker). Lazy access via the package still resolves the callable.
+    import subprocess
+    import sys
+
+    code = (
+        "import sys, mvs_pipeline.collector as c; "
+        "assert 'mvs_pipeline.collector.orchestrate' not in sys.modules, 'imported eagerly'; "
+        "assert callable(c.run_collection), 'lazy attr missing'; "
+        "assert 'mvs_pipeline.collector.orchestrate' in sys.modules, 'lazy load failed'"
+    )
+    proc = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True)
+    assert proc.returncode == 0, proc.stderr
+
+
 def test_argv_includes_bounds() -> None:
     argv = telemetry_argv("mvs-telemetry", "a.json", "c.txt", "o.json")
     assert "--max-depth" in argv and "--max-input-bytes" in argv

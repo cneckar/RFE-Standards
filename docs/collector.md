@@ -93,6 +93,8 @@ All three HTTPS readers retry transient failures (HTTP 429/5xx, dropped
 connections, stalled sockets) with exponential backoff, honoring `Retry-After`,
 and use a per-request socket timeout. Over a multi-hour 10⁸ run a 503 from the
 mirror is a matter of *when*, not *if* — a single one no longer aborts the job.
+Every request carries a descriptive `User-Agent` (Wikimedia's User-Agent policy
+returns 403 to the default `Python-urllib` agent).
 
 `--cc-crawl` reads over HTTPS by default (works anywhere the mirror is
 reachable); pass `--cc-transport s3` to stream from `s3://commoncrawl`
