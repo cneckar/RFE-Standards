@@ -3,9 +3,10 @@
 The MVS pruner (Phase 3) removes any grammar/schema node whose usage in the
 telemetry corpus falls below `MIN_USAGE_PERCENTAGE`. That is the point of the
 project — but pure usage-driven pruning would happily delete features that are
-rare *and* load-bearing. The **Criticality Override Registry** (`overrides.yaml`
-at the repo root) is the deliberate, auditable escape hatch: nodes listed there
-with `protected: true` are never pruned, regardless of usage.
+rare *and* load-bearing. The **Criticality Override Registry**
+(`pipeline/mvs_pipeline/overrides.yaml`, vendored in the package so it resolves
+under any install layout) is the deliberate, auditable escape hatch: nodes listed
+there with `protected: true` are never pruned, regardless of usage.
 
 ## Schema
 

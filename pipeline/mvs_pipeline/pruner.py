@@ -85,7 +85,7 @@ def _main(argv: list[str] | None = None) -> int:
         "--overrides",
         type=Path,
         default=None,
-        help="override registry (default: the repo overrides.yaml)",
+        help="override registry (default: the packaged overrides.yaml)",
     )
     parser.add_argument("--threshold", type=float, default=MIN_USAGE_PERCENTAGE)
     parser.add_argument("--surviving-grammar", required=True)

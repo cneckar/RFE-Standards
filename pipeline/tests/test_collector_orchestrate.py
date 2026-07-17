@@ -56,7 +56,9 @@ def _protected_ids_runner(corpus_path: Path) -> dict:
     """
     import yaml
 
-    reg = yaml.safe_load((Path(__file__).resolve().parents[2] / "overrides.yaml").read_text())
+    from mvs_pipeline import overrides as overrides_mod
+
+    reg = yaml.safe_load(overrides_mod.default_path().read_text())
     n = sum(1 for ln in corpus_path.read_text().splitlines() if ln.strip())
     return {
         "schema_version": 1,

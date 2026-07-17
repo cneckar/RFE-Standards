@@ -122,7 +122,7 @@ python -m mvs_pipeline.collector.orchestrate \
 # → out/hits.json, out/rfc3986-uri.pruned.json, out/rfc3986-uri.mvs.abnf
 ```
 
-`--overrides` picks a registry other than the repo `overrides.yaml`;
+`--overrides` picks a registry other than the packaged `overrides.yaml`;
 `--surviving-grammar` names the output grammar (default `<grammar>-mvs`);
 `--threshold` sets the usage cutoff; `--mvs-format abnf|asn1` overrides the
 auto-detected format. `--workers N` fans the CPU-bound dedup/partition step
