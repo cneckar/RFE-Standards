@@ -1,5 +1,5 @@
 -- Minified MVS grammar for rfc5280-x509 (generated).
--- 20 nodes pruned below usage threshold 0.001.
+-- 16 nodes pruned below usage threshold 0.001.
 
 rfc5280_x509 DEFINITIONS ::= BEGIN
 
@@ -14,9 +14,9 @@ RelativeDistinguishedName ::= SET OF AttributeTypeAndValue
 AttributeTypeAndValue ::= SEQUENCE { type AttributeType, value AttributeValue }
 AttributeType ::= OBJECT IDENTIFIER
 AttributeValue ::= DirectoryString
-DirectoryString ::= CHOICE { utf8String UTF8String }
+DirectoryString ::= CHOICE { printableString PrintableString, utf8String UTF8String }
 Validity ::= SEQUENCE { notBefore Time, notAfter Time }
-Time ::= CHOICE { utcTime UTCTime }
+Time ::= CHOICE { utcTime UTCTime, generalTime GeneralizedTime }
 SubjectPublicKeyInfo ::= SEQUENCE { algorithm AlgorithmIdentifier, subjectPublicKey BIT STRING }
 Extensions ::= SEQUENCE OF Extension
 Extension ::= SEQUENCE { extnID OBJECT IDENTIFIER, critical BOOLEAN OPTIONAL, extnValue OCTET STRING }

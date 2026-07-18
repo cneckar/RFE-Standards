@@ -64,6 +64,10 @@ def test_rfe3986_doc_documents_every_override() -> None:
     doc = (SPEC / "RFE-3986.md").read_text()
     ast = load_document(AST)["nodes"]
     overrides = overrides_mod.load_overrides()
-    for nid in overrides_mod.protected_nodes(overrides):
+    uri_overrides = [
+        n for n in overrides_mod.protected_nodes(overrides) if n.startswith("rfc3986-uri:")
+    ]
+    assert uri_overrides, "expected some rfc3986-uri overrides"
+    for nid in uri_overrides:
         name = ast[nid]["name"].strip('"')
         assert name in doc, f"override-protected production {name!r} is undocumented in RFE-3986.md"
