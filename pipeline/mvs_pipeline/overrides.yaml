@@ -19,6 +19,30 @@
 # Phase-1 rule node id from artifacts/rfc3986-uri.ast.json.
 schema_version: 1
 overrides:
+  # Scheme charset boundary (defined against the 9.3M-URI corpus). RFC 3986 allows
+  # scheme = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." ). Of the trailing chars,
+  # only DIGIT (e.g. s3:, u2f:) and "-" (e.g. ms-word:, view-source:) actually
+  # appeared; "+" (0 obs) and "." (2 obs in 9.3M) did not and are intentionally
+  # left out — this is the MVS drawing a tighter, evidence-backed boundary than the
+  # RFC. DIGIT and "-" are kept as protected (both fall just under the 0.1%
+  # threshold) because they are structurally standard scheme characters in real use.
+  "rfc3986-uri:scheme#2093cace":  # DIGIT in the scheme trailing charset
+    protected: true
+    justification: >-
+      Scheme boundary: digits are structurally standard in real schemes (s3, u2f,
+      web3) and appear in the corpus, but below the 0.1% threshold. Kept so the MVS
+      scheme charset is ALPHA / DIGIT / "-", tighter than RFC 3986 yet not
+      surprising ("reject s3:" would be wrong); "+" and "." are deliberately excluded.
+    owner: protocol-wg
+  "rfc3986-uri:scheme#856d14d5":  # "-" in the scheme trailing charset
+    protected: true
+    justification: >-
+      Scheme boundary: the hyphen is standard in real schemes (ms-word,
+      view-source, microsoft-edge) and is the most-observed trailing scheme char in
+      the corpus, yet below threshold. Kept so hyphenated schemes remain valid; the
+      RFC's "+" and "." are excluded as unobserved in 9.3M URIs.
+    owner: protocol-wg
+
   # Percent-encoding is rare across sampled URIs but must never be dropped:
   # correct decoding is what lets a parser normalize and reject encoded
   # path-traversal (%2e%2e) and injection payloads. Removing it would turn a

@@ -1,9 +1,9 @@
 ; Minified MVS grammar for rfc3986-uri (generated).
-; 111 nodes pruned below usage threshold 0.001.
+; 109 nodes pruned below usage threshold 0.001.
 
 URI = scheme ":" hier-part [ "?" query ] [ "#" fragment ]
 hier-part = "//" authority path-abempty / path-rootless
-scheme = ALPHA *( ALPHA )
+scheme = ALPHA *( ALPHA / DIGIT / "-" )
 authority = [ userinfo "@" ] host [ ":" port ]
 userinfo = *( unreserved / pct-encoded / sub-delims / ":" )
 host = IP-literal / IPv4address / reg-name

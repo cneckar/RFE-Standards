@@ -187,10 +187,22 @@ mod tests {
     }
 
     #[test]
+    fn accepts_digit_and_hyphen_schemes() {
+        // The MVS scheme boundary keeps DIGIT and "-" (protected in overrides),
+        // so schemes like s3: and ms-word: are accepted even though the sample
+        // corpus is dominated by alphabetic schemes.
+        assert!(uri_parser().validate(b"s3://bucket/key").is_ok());
+        assert!(uri_parser().validate(b"ms-word://open/doc").is_ok());
+    }
+
+    #[test]
     fn rejects_legacy_feature_with_specific_error() {
-        // The sample corpus had only alphabetic schemes, so a digit in the
-        // scheme exercises a pruned alternative -> ERR_MVS_UNSUPPORTED_NODE.
-        let err = uri_parser().validate(b"http2://example.com/").unwrap_err();
+        // "+" in a scheme is permitted by RFC 3986 but excluded from the MVS
+        // (unobserved in the corpus), so it exercises a pruned alternative ->
+        // ERR_MVS_UNSUPPORTED_NODE.
+        let err = uri_parser()
+            .validate(b"foo+bar://example.com/")
+            .unwrap_err();
         match err {
             MvsError::UnsupportedNode(node) => assert!(node.starts_with("rfc3986-uri:")),
             other => panic!("expected UnsupportedNode, got {other}"),
