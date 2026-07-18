@@ -72,3 +72,27 @@ mvs-telemetry \
   --der-dir corpus/certs \
   --out artifacts/rfc5280-x509.hits.json
 ```
+
+### Fetching a real cert corpus from a CT log
+
+For a statistically adequate corpus, pull real certificates straight from a
+[Certificate Transparency](https://www.rfc-editor.org/rfc/rfc6962) log — the X.509
+analog of Common Crawl. `mvs_pipeline.ct` pages `get-entries`, parses each
+`MerkleTreeLeaf`, and writes a full DER certificate per entry (the leaf for
+`x509_entry`, the pre-certificate for `precert_entry`), deduplicating by SHA-256
+and keeping a deterministic `--sample-rate` fraction:
+
+```bash
+# Scan 2,000,000 entries of a public log, keep ~1-in-4, into a DER dir.
+python -m mvs_pipeline.ct \
+  --log https://<ct-log-host>/<log> \
+  --start 0 --count 2000000 --sample-rate 0.25 --seed 0 \
+  --out-dir corpus/certs-real
+# → corpus/certs-real/cert-*.der + provenance.json, then run mvs-telemetry --der-dir on it.
+```
+
+The fetch is **reproducible**: a CT log is append-only, so a fixed
+`(log, --start, --count, --seed)` returns the same certificates. Requests retry
+transient failures with backoff (shared with the URI collector). Use
+`get-sth` to size a log before scanning; each request returns at most the log's
+per-call cap, and the pager advances by what it actually got.
