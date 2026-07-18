@@ -126,3 +126,51 @@ overrides:
       corpora under-count them because fragments are not sent to the server, so
       their low sampled frequency is an artifact, not evidence of disuse.
     owner: protocol-wg
+
+  # --- rfc5280-x509 -------------------------------------------------------- #
+  # A random sample of Web PKI certificates is dominated by modern leaf certs
+  # (v3, UTF8String DNs, UTCTime validity, mostly non-critical extensions). The
+  # productions below are load-bearing for security or for validating the long
+  # tail of CA / legacy / long-lived certificates, yet appear well under the 0.1%
+  # threshold in such a sample. Node ids are from artifacts/rfc5280-x509.ast.json.
+
+  # The Extension `critical` flag is the control that makes unknown-critical-
+  # extension rejection possible (RFC 5280 §4.2): a verifier that cannot parse it
+  # cannot tell a critical extension it must honor from an optional one. Most
+  # sampled extensions are non-critical (so the DER-DEFAULT-FALSE flag is absent),
+  # but the ability to recognize it MUST NOT be pruned.
+  "rfc5280-x509:Extension#d51aa96a":
+    protected: true
+    justification: >-
+      Security-critical: the extension `critical` BOOLEAN gates unknown-critical-
+      extension rejection (RFC 5280 §4.2). It is encoded only when TRUE, so it is
+      rare in a leaf-heavy sample, but a verifier that cannot parse it cannot
+      enforce criticality — a silent security downgrade.
+    owner: security-wg
+
+  # notAfter dates at or beyond 2050 MUST be GeneralizedTime (RFC 5280 §4.1.2.5);
+  # long-lived roots and CAs already use it. It is near-absent from a sample of
+  # current leaf certs (which use UTCTime through 2049), so usage pruning would
+  # drop it — and a parser without it would reject valid long-lived CA certs.
+  "rfc5280-x509:Time#eb0b5f15":
+    protected: true
+    justification: >-
+      Interop-critical: GeneralizedTime is mandatory for validity dates >= 2050
+      (RFC 5280 §4.1.2.5) and is used by long-lived roots/CAs today, but is
+      near-zero in a sample of current leaf certificates. Dropping it would reject
+      valid CA certificates outright.
+    owner: protocol-wg
+
+  # PrintableString is the X.520 default for many DN attributes (country, and much
+  # of legacy subject/issuer naming). A corpus skewed toward modern ACME leaf certs
+  # (minimal, UTF8String DNs) can under-count it, but rejecting it would break
+  # validation of the enormous installed base of certificates with PrintableString
+  # DNs, including most CA certificates in real chains.
+  "rfc5280-x509:DirectoryString#b4e9eebe":
+    protected: true
+    justification: >-
+      Interop-critical: PrintableString is the standard encoding for country and
+      much legacy DN naming across the installed base (notably CA certificates).
+      A sample skewed to modern UTF8String leaf certs under-counts it, but
+      dropping it would fail validation of ubiquitous real-world DNs.
+    owner: protocol-wg
