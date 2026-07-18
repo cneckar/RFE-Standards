@@ -7,6 +7,7 @@ security/interoperability override. Everything RFC 3986 allows but the world doe
 not use has been pruned. This is the shape a conformant parser has to accept — and
 nothing more.
 
+- **Specification:** [`RFE-3986.md`](RFE-3986.md) — the normative document: abstract, syntax, the **deltas from RFC 3986**, override floor, security & conformance.
 - **Grammar:** [`rfc3986-uri.mvs.abnf`](rfc3986-uri.mvs.abnf) — valid, self-closed ABNF (28 rules).
 - **Evidence:** [`hits.json`](hits.json) — per-node usage counts over the corpus.
 - **Decision record:** [`pruned.json`](pruned.json) — the 88 nodes removed, the threshold, and the corpus provenance.

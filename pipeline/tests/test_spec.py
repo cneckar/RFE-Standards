@@ -39,3 +39,31 @@ def test_spec_grammar_reproduces_from_pruned() -> None:
     ast = load_document(AST)
     pruned = load_document(SPEC / "pruned.json")
     assert (SPEC / "rfc3986-uri.mvs.abnf").read_text() == codegen.generate(ast, pruned)
+
+
+def _abnf_block(md: str) -> str:
+    """Extract the first ```abnf fenced block from a Markdown document."""
+    start = md.index("```abnf\n") + len("```abnf\n")
+    end = md.index("\n```", start)
+    return md[start:end]
+
+
+def test_rfe3986_doc_embeds_generated_grammar_verbatim() -> None:
+    # The normative grammar in the prose spec MUST be the generated grammar, not a
+    # hand-maintained copy that can drift from the evidence.
+    doc = (SPEC / "RFE-3986.md").read_text()
+    grammar = (SPEC / "rfc3986-uri.mvs.abnf").read_text()
+    assert _abnf_block(doc).strip() == grammar.strip(), (
+        "RFE-3986.md's normative grammar block is out of sync with rfc3986-uri.mvs.abnf"
+    )
+
+
+def test_rfe3986_doc_documents_every_override() -> None:
+    # Every protected production must be named in the prose spec, so the security
+    # floor can't be silently dropped from the standard's text.
+    doc = (SPEC / "RFE-3986.md").read_text()
+    ast = load_document(AST)["nodes"]
+    overrides = overrides_mod.load_overrides()
+    for nid in overrides_mod.protected_nodes(overrides):
+        name = ast[nid]["name"].strip('"')
+        assert name in doc, f"override-protected production {name!r} is undocumented in RFE-3986.md"
