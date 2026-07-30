@@ -6,9 +6,12 @@ Decompose bloated, legacy RFCs (X.509/ASN.1 and RFC 3986 URIs) into usage-driven
 empirical standards. Coverage is dictated by observable real-world usage data plus an
 explicit Criticality Override Registry — not design-by-committee.
 
-> **First published spec: [RFE-3986-URI](spec/rfc3986-uri/)** — a Minimum Viable
-> Standard for URIs derived from **9,266,505** real-world URIs (Common Crawl +
-> Wikipedia). 28 rules, evidence for every one.
+> **Published specs**
+> - **[RFE-3986-URI](spec/rfc3986-uri/)** — Minimum Viable URI syntax from
+>   **9,266,505** real URIs (Common Crawl + Wikipedia); 28 rules.
+> - **[RFE-5280-X509](spec/rfc5280-x509/)** — Minimum Viable X.509 certificate
+>   profile from **21,536** real certificates (Certificate Transparency); the same
+>   method on a binary ASN.1 grammar.
 
 ## The Pipeline
 

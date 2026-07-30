@@ -22,7 +22,7 @@ newline-delimited corpus:
 from mvs_pipeline import corpus
 
 uris = corpus.iter_uris(open("crawl.warc").read(), fmt="warc")
-corpus.write_corpus(uris, "corpus/uri.txt")   # dedupes, returns count
+corpus.write_corpus(uris, "corpus/uri.txt")  # dedupes, returns count
 ```
 
 ## Running telemetry (Rust)
