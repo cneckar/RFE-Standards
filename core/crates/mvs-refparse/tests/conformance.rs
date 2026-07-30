@@ -5,7 +5,7 @@
 //! 9.3M-URI corpus drew: what a conformant URI parser must accept, and what it
 //! must reject — and reject with a *specific* reason, never by degrading.
 
-use mvs_refparse::{MvsError, MvsTextParser};
+use mvs_refparse::{MvsCertParser, MvsError, MvsTextParser};
 use mvs_schema::{Ast, Pruned};
 
 fn spec_parser() -> MvsTextParser {
@@ -74,4 +74,40 @@ fn spec_rejects_out_of_grammar_input() {
             "expected malformed for {uri:?}"
         );
     }
+}
+
+// --- X.509 (rfc5280) conformance to the published spec/rfc5280-x509 --------- #
+
+fn x509_spec_parser() -> MvsCertParser {
+    let ast: Ast = serde_json::from_str(include_str!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../../artifacts/rfc5280-x509.ast.json"
+    )))
+    .unwrap();
+    let pruned: Pruned = serde_json::from_str(include_str!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../../spec/rfc5280-x509/pruned.json"
+    )))
+    .unwrap();
+    MvsCertParser::new(ast, &pruned.pruned)
+}
+
+/// A real DER certificate that uses only in-profile productions is accepted by
+/// the published X.509 MVS (v3, extensions, UTCTime, printable/utf8 DN).
+#[test]
+fn x509_spec_accepts_a_real_certificate() {
+    let der = include_bytes!(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../../corpus/certs/sample-cert.der"
+    ));
+    assert!(x509_spec_parser().validate(der).is_ok());
+}
+
+/// Truncated / non-certificate input is rejected outright, never parsed leniently.
+#[test]
+fn x509_spec_rejects_malformed_der() {
+    assert_eq!(
+        x509_spec_parser().validate(b"\x30\x03not-a-cert"),
+        Err(MvsError::Malformed)
+    );
 }
